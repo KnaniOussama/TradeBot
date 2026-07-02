@@ -3,11 +3,15 @@
 //! OHLCV aggregator clients (Phase 3b).
 
 pub mod error;
+pub mod helius;
 pub mod jupiter;
 pub mod rate_limiter;
 pub mod rpc;
 
-pub use error::{JupiterError, RpcError};
+pub use error::{HeliusError, JupiterError, RpcError};
+pub use helius::{
+    filter_for_mint, get_recent_swaps_for_wallet, HeliusClient, TokenTransfer, WhaleSwap,
+};
 pub use jupiter::{JupiterClient, JupiterQuote, JupiterSwap};
 pub use rate_limiter::{RateLimiterMetrics, TokenBucketLimiter};
 pub use rpc::{LatestBlockhash, SignatureStatus, SolanaRpcClient};

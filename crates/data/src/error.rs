@@ -29,3 +29,13 @@ pub enum RpcError {
     #[error("transaction {signature} not confirmed within {timeout_s}s")]
     ConfirmationTimeout { signature: String, timeout_s: f64 },
 }
+
+/// Errors from the Helius enhanced-transactions client.
+#[derive(Debug, thiserror::Error)]
+pub enum HeliusError {
+    #[error("helius http request failed: {0}")]
+    Request(#[from] reqwest::Error),
+
+    #[error("failed to parse helius response: {0}")]
+    Json(#[from] serde_json::Error),
+}
