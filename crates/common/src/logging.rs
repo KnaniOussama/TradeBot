@@ -28,7 +28,7 @@ pub fn init_logging(level: &str, json: bool) {
     } else {
         builder.try_init()
     };
-    // Ignore "already initialized" — callers may invoke this more than once
+    // Ignore "already initialized" because callers may invoke this more than once
     // across tests or re-entrant setup.
     let _ = result;
 }

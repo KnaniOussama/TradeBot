@@ -538,7 +538,7 @@ mod tests {
 
     #[test]
     fn app_config_ignores_unknown_fields() {
-        // Mirrors pydantic's extra="ignore" — old configs with removed fields (e.g. db_path) still load.
+        // Mirrors pydantic's extra="ignore": old configs with removed fields (e.g. db_path) still load.
         let json = r#"{"rpc_url":"x","helius_api_key_env":"y","db_path":"tradebot.db"}"#;
         let a: AppConfig = serde_json::from_str(json).unwrap();
         assert_eq!(a.rpc_url, "x");
