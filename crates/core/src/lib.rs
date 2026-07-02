@@ -11,11 +11,17 @@
 //! module's doc comments for tolerance notes where a value must cross
 //! between the two representations.
 
+pub mod aggregator;
+pub mod decision;
+pub mod manual_actions;
 pub mod portfolio;
 pub mod regime;
 pub mod risk;
 pub mod sizing;
 
+pub use aggregator::{AggregatedScore, SignalAggregator};
+pub use decision::{Action, ActionKind, DecisionEngine, ExitReason, Observation};
+pub use manual_actions::{ManualActionQueue, ManualExitRequest};
 pub use portfolio::{Portfolio, PortfolioError, Position};
 pub use regime::{classify_regime, classify_regime_default, Regime, RegimeLabel};
 pub use risk::{KillAction, RiskDecision, RiskManager, RiskState};

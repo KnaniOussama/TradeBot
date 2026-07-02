@@ -104,6 +104,13 @@ impl RiskManager {
         Self { cfg }
     }
 
+    /// Read access to the underlying config, needed by the decision engine
+    /// for the take-profit ladder, trailing stop, regime gate, and Kelly
+    /// sizing thresholds. Mirrors direct `self._cfg` access in decision.py.
+    pub fn cfg(&self) -> &RiskConfig {
+        &self.cfg
+    }
+
     /// Confidence in `[0, 1]` maps linearly up to `size_max`: at c=0.6 ->
     /// 30% (size_min), at c=1.0 -> 50% (size_max). `frac = c * size_max`,
     /// clamped to `[size_min, size_max]` when positive.
