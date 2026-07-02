@@ -325,7 +325,7 @@ async def _run_loop(
 
     # Signals are only INSTANTIATED if their weight > 0. A weight of 0 in the
     # aggregator just zeroes the contribution, but the signal would still make
-    # network calls every cycle — burning the rate-limit budget for nothing.
+    # network calls every cycle, burning the rate-limit budget for nothing.
     sig_weights = cfg.weights.signals
     micro_tf = timeframes[0] if timeframes else "1m"
 
@@ -353,7 +353,7 @@ async def _run_loop(
     else:
         log.info(
             "microstructure_signal_disabled",
-            reason="weight is 0 — saves 2 Jupiter calls per pair per cycle",
+            reason="weight is 0: saves 2 Jupiter calls per pair per cycle",
         )
 
     # Helius key resolution: prefer env var if the config value looks like a var name
@@ -444,7 +444,7 @@ async def _run_loop(
 
     # Birdeye: batched mark-price fetcher. Same env-var-or-literal-key resolution
     # as Helius. When present, a single Birdeye call per cycle replaces N Jupiter
-    # mark probes — frees the Jupiter rate-limit budget for execution.
+    # mark probes, freeing the Jupiter rate-limit budget for execution.
     from tradebot.data.birdeye import BirdeyeClient
 
     cfg_be_value = cfg.app.birdeye_api_key_env or ""
