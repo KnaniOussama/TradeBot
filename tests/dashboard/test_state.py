@@ -214,7 +214,7 @@ async def test_build_snapshot_includes_decisions(storage):
     )
     assert hasattr(snap, "decisions")
     assert len(snap.decisions) == 2
-    # newest first — second obs should be first in decisions list
+    # newest first: second obs should be first in decisions list
     assert snap.decisions[0]["timestamp"] == "2026-05-03T12:01:00+00:00"
     assert snap.decisions[1]["timestamp"] == "2026-05-03T12:00:00+00:00"
 

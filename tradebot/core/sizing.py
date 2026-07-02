@@ -29,7 +29,7 @@ def compute_kelly_stats(round_trip_returns: list[float]) -> KellyStats:
     avg_loss = sum(losses) / max(len(losses), 1)
 
     if avg_loss <= 1e-9:
-        # No losses recorded — be conservative, don't trust the kelly
+        # No losses recorded, be conservative, don't trust the kelly
         return KellyStats(n, win_rate, avg_win, 0.0, 0.0)
 
     b = avg_win / avg_loss
@@ -53,7 +53,7 @@ def kelly_size(
     Falls back to linear sizing (like legacy RiskManager.size_for) when
     insufficient trade history is available (< min_round_trips).
 
-    Note: partial sells are treated as full closes — document as approximation.
+    Note: partial sells are treated as full closes, documented as approximation.
     """
     if stats.n_round_trips < min_round_trips:
         # Fallback: linear-by-confidence sizing matching legacy RiskManager.size_for

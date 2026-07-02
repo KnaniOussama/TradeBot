@@ -106,14 +106,14 @@ class AppConfig(BaseModel):
     birdeye_base_url: str = "https://public-api.birdeye.so"
     # Birdeye free Standard tier is ~1 rps. The Starter tier is ~30 rps.
     # Set to 0.9 (free) or 25+ (paid). Limiter applies to BOTH the decision
-    # cycle and the fast-tick task — they share one budget.
+    # cycle and the fast-tick task: they share one budget.
     birdeye_rate_limit_rps: float = 0.9
     birdeye_rate_limit_burst: int = 2
     birdeye_max_429_retries: int = 2
     # Fast chart-refresh task: polls Birdeye every N seconds and republishes
     # the snapshot so the dashboard chart updates between (slower) decision
     # cycles. On free-tier Birdeye (~1 rps) with 8 mints, ONE full refresh
-    # takes ~8s — set this to a multiple of (mints / rps) or larger.
+    # takes ~8s, set this to a multiple of (mints / rps) or larger.
     # Recommended: 0 (disabled) or 10+ on free tier; 1-2 on paid Starter tier.
     # Set to 0 to disable.
     fast_tick_interval_s: float = 0.0

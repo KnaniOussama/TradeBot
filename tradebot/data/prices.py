@@ -64,7 +64,7 @@ class PriceFeed:
             for spec in self._pairs:
                 try:
                     await self._poll_pair(spec)
-                except Exception as e:  # transient — log and continue
+                except Exception as e:  # transient: log and continue
                     pair_str = f"{spec.symbol}/{self._quote_symbol}"
                     log.warning("price_poll_failed", pair=pair_str, error=str(e))
             try:

@@ -44,7 +44,7 @@ class BirdeyeClient:
         self._client: httpx.AsyncClient | None = None
         self._limiter = limiter
         self._max_429_retries = max_429_retries
-        # Set to True once /defi/multi_price returns 401/403 — we then use the
+        # Set to True once /defi/multi_price returns 401/403; we then use the
         # per-token /defi/price endpoint exclusively (free Standard tier).
         self._multi_price_locked: bool = False
 
@@ -96,7 +96,7 @@ class BirdeyeClient:
     async def multi_price(self, mints: list[str]) -> dict[str, float]:
         """Fetch USD price for a batch of token mints. Returns {mint: price_usd}.
 
-        Tries `/defi/multi_price` first (batched, 1 HTTP call — but requires
+        Tries `/defi/multi_price` first (batched, 1 HTTP call, but requires
         paid Starter tier). On 401/403 (free-tier endpoint restriction) falls
         back to per-token `/defi/price`, which is on the free Standard tier.
         Switches mode permanently after the first 401 so we don't keep hitting

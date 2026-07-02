@@ -164,7 +164,7 @@ def test_equity_includes_sol_balance_at_mark():
 
 def test_equity_uses_fallback_sol_price_when_mark_missing():
     p = Portfolio(mode="demo", starting_cash=50.0, starting_sol_balance=0.05)
-    # No SOL/USDC mark — fallback constant kicks in (140.0 in module).
+    # No SOL/USDC mark, fallback constant kicks in (140.0 in module).
     eq = p.equity({})
     assert eq > 50.0  # SOL contribution non-zero
 

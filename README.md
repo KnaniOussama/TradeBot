@@ -6,8 +6,8 @@ in a live web dashboard at `http://127.0.0.1:8765`.
 
 Two modes:
 
-- **Demo** — pretend money. Uses real prices but never sends a transaction. Safe to leave running for days while you watch.
-- **Real** — your money, on-chain. Trades through a dedicated bot wallet you fund from your Phantom wallet. Your Phantom seed is **never** touched.
+- **Demo:** pretend money. Uses real prices but never sends a transaction. Safe to leave running for days while you watch.
+- **Real:** your money, on-chain. Trades through a dedicated bot wallet you fund from your Phantom wallet. Your Phantom seed is **never** touched.
 
 ---
 
@@ -16,9 +16,9 @@ Two modes:
 1. [How the bot works (in plain English)](#how-the-bot-works)
 2. [How decisions are made](#how-decisions-are-made)
 3. [Install](#install)
-4. [Demo mode — try it in 2 minutes](#demo-mode)
+4. [Demo mode: try it in 2 minutes](#demo-mode)
 5. [The dashboard](#the-dashboard)
-6. [Real mode — connecting your Phantom wallet](#real-mode)
+6. [Real mode: connecting your Phantom wallet](#real-mode)
 7. [Configuration cheat-sheet](#configuration)
 8. [Safety + things that can go wrong](#safety)
 9. [FAQ](#faq)
@@ -45,7 +45,7 @@ That's the whole loop. Nothing magic.
 
 ## How decisions are made
 
-The bot doesn't trade on a single indicator — it combines several, weighted, into one **composite score** between **−1 (strongly bearish)** and **+1 (strongly bullish)**.
+The bot doesn't trade on a single indicator. It combines several, weighted, into one **composite score** between **-1 (strongly bearish)** and **+1 (strongly bullish)**.
 
 ### The signal layer
 
@@ -55,7 +55,7 @@ The bot doesn't trade on a single indicator — it combines several, weighted, i
 | **Microstructure** | Order book depth imbalance, VWAP deviation, volume z-score | Live Jupiter quotes |
 | **On-chain** | Whale transfer flow, DEX volume surges | Solana on-chain data (via Helius) |
 
-Each signal outputs a number from −1 to +1. They're combined using the **weights** in your config:
+Each signal outputs a number from -1 to +1. They're combined using the **weights** in your config:
 
 ```json
 "weights": {
@@ -158,9 +158,9 @@ The bot starts with a virtual **$50** of pretend USDC and trades against live So
 
 ## Real mode
 
-> ⚠️ Real mode trades real money. Test on **devnet** first (the default RPC is devnet, free fake SOL). Only switch to **mainnet** once you're confident the bot behaves the way you expect.
+> **Warning:** Real mode trades real money. Test on **devnet** first (the default RPC is devnet, free fake SOL). Only switch to **mainnet** once you're confident the bot behaves the way you expect.
 
-### Step 1 — Set a strong passphrase
+### Step 1: Set a strong passphrase
 
 The bot's wallet is encrypted with a passphrase. Set it as an environment variable
 **before** running anything (so it doesn't end up in your shell history):
@@ -171,7 +171,7 @@ $env:TRADEBOT_PASSPHRASE = "use-a-long-random-passphrase-here"
 
 This stays set for the current PowerShell session. For each new terminal, set it again.
 
-### Step 2 — Generate a dedicated bot wallet
+### Step 2: Generate a dedicated bot wallet
 
 ```powershell
 tradebot wallet generate --keystore keystore\bot.keystore.json
@@ -185,28 +185,28 @@ Bot address: 7xKw...HsPq
 Fund this address from your Phantom wallet to begin trading.
 ```
 
-**Copy that address.** It's a brand-new Solana wallet that exists only for the bot. Your Phantom wallet stays completely separate — the bot never knows your Phantom seed.
+**Copy that address.** It's a brand-new Solana wallet that exists only for the bot. Your Phantom wallet stays completely separate. The bot never knows your Phantom seed.
 
-### Step 3 — Fund the bot from Phantom
+### Step 3: Fund the bot from Phantom
 
 Open Phantom → click **Send** → paste the bot address. Send:
 
 - **A small amount of SOL** for transaction fees (~0.05 SOL is plenty to start).
 - **The USDC you want the bot to trade with** (e.g. $50 worth).
 
-> 💡 If you only have SOL in Phantom, swap a portion to USDC inside Phantom first
+> Tip: If you only have SOL in Phantom, swap a portion to USDC inside Phantom first
 > (Swap tab → SOL → USDC).
 
-Wait 5–10 seconds for the transfer to confirm. Verify on [solscan.io](https://solscan.io)
+Wait 5-10 seconds for the transfer to confirm. Verify on [solscan.io](https://solscan.io)
 by pasting the bot address.
 
-### Step 4 — Start in real mode (still on devnet by default)
+### Step 4: Start in real mode (still on devnet by default)
 
 ```powershell
 tradebot start --mode real --confirm-real --keystore keystore\bot.keystore.json
 ```
 
-The `--confirm-real` flag is a deliberate safety gate — without it the bot refuses
+The `--confirm-real` flag is a deliberate safety gate: without it the bot refuses
 to start in real mode. It also requires `TRADEBOT_PASSPHRASE` to be set.
 
 You'll see in the logs:
@@ -217,7 +217,7 @@ You'll see in the logs:
 
 Open the dashboard. The mode pill in the top-right will be a **pulsing red REAL**.
 
-### Step 5 — Switch to mainnet (when you're ready)
+### Step 5: Switch to mainnet (when you're ready)
 
 Open the dashboard's **Settings** tab. Find this in the JSON:
 
@@ -235,7 +235,7 @@ Change it to a mainnet RPC. Two free options:
   `"rpc_url": "https://mainnet.helius-rpc.com/?api-key=YOUR_KEY_HERE"`
 
 Click **Save**, **Ctrl-C** the bot, fund the bot wallet with **mainnet** SOL+USDC
-from Phantom (mainnet has different addresses for tokens — Phantom handles this
+from Phantom (mainnet has different addresses for tokens; Phantom handles this
 automatically when you select the network), and run `tradebot start --mode real --confirm-real ...` again.
 
 ### Stopping the bot
@@ -244,7 +244,7 @@ Press **Ctrl-C** in the terminal. Open positions stay open (on-chain holdings do
 disappear when the bot stops). Restart the bot and it picks up where it left off.
 
 To liquidate manually: open Phantom on the bot wallet (you'd need to import the
-keystore, which is intentionally awkward — instead, just use Jupiter directly via
+keystore, which is intentionally awkward; instead, just use Jupiter directly via
 the bot's address using a swap UI, or write a one-shot script).
 
 ---
@@ -278,7 +278,7 @@ Find the token's **mint address** on [birdeye.so](https://birdeye.so) or [solsca
 }
 ```
 
-`decimals` is a per-token property — find it on solscan under the token's metadata.
+`decimals` is a per-token property. Find it on solscan under the token's metadata.
 
 ---
 
@@ -298,7 +298,7 @@ To start completely fresh (wipe portfolio + risk + chart cache, but keep the tra
 
     tradebot start --reset
 
-In real mode, on startup the bot also queries your bot wallet's on-chain balances and warns if they don't match the saved portfolio (e.g. you sent funds in/out via Phantom while the bot was off). It does not auto-correct — you decide whether to `--reset` or trust the saved state.
+In real mode, on startup the bot also queries your bot wallet's on-chain balances and warns if they don't match the saved portfolio (e.g. you sent funds in/out via Phantom while the bot was off). It does not auto-correct: you decide whether to `--reset` or trust the saved state.
 
 ---
 
@@ -308,10 +308,10 @@ In real mode, on startup the bot also queries your bot wallet's on-chain balance
 
 - Demo mode never sends a transaction.
 - Real mode requires `--confirm-real` AND a passphrase env var.
-- The bot wallet is separate from Phantom — your seed phrase is never involved.
+- The bot wallet is separate from Phantom: your seed phrase is never involved.
 - Risk circuit breakers stop trading on big losses.
 - Slippage guard refuses bad fills.
-- Default RPC is devnet — switching to mainnet is a deliberate edit.
+- Default RPC is devnet: switching to mainnet is a deliberate edit.
 
 **Things that can still go wrong:**
 
@@ -348,7 +348,7 @@ Locally, in `data/` as plain JSON files. No cloud, no database server.
 You can read them with any text editor.
 
 **Q: Can I run this on a server / VPS?**
-Yes — but change `dashboard_host` to `0.0.0.0` and **put it behind a reverse proxy
+Yes, but change `dashboard_host` to `0.0.0.0` and **put it behind a reverse proxy
 with HTTPS + auth**. The dashboard has no built-in authentication.
 
 **Q: Will the bot make me money?**
@@ -361,7 +361,7 @@ Drop a new module in `tradebot/signals/` that exposes a `score(ctx)` async metho
 returning a `SignalScore` with a value in [-1, +1]. Add it to the aggregator wiring
 in `tradebot/main.py`. Add its weight to `weights.signals` in the config.
 
-**Q: I get `getaddrinfo failed` errors — what do I do?**
+**Q: I get `getaddrinfo failed` errors, what do I do?**
 DNS or network issue. Try `nslookup lite-api.jup.ag` from the same shell. If that
 fails, you have no internet or your DNS is broken. If it works but the bot still
 errors, check VPN / firewall.
@@ -394,13 +394,13 @@ That's it. Have fun. **Don't trade what you can't afford to lose.**
 
 ## Backtest
 
-Open the dashboard → **Backtest** tab. Upload an OHLCV CSV (columns: `timestamp, open, high, low, close, volume` — UTC ISO timestamps), set params, click **Run backtest**.
+Open the dashboard → **Backtest** tab. Upload an OHLCV CSV (columns: `timestamp, open, high, low, close, volume`, UTC ISO timestamps), set params, click **Run backtest**.
 
-Results: total return, Sharpe ratio, max drawdown, win/loss, trade list, equity curve. Last 20 runs are kept in memory and shown in the History panel — click any row to reload that result.
+Results: total return, Sharpe ratio, max drawdown, win/loss, trade list, equity curve. Last 20 runs are kept in memory and shown in the History panel. Click any row to reload that result.
 
 Sources for OHLCV CSVs:
 - Birdeye: download token historical price as CSV
 - CoinGecko: free historical API
-- The bot's own `data/ohlcv/<pair>__<timeframe>.json` — convert to CSV with a one-liner
+- The bot's own `data/ohlcv/<pair>__<timeframe>.json`: convert to CSV with a one-liner
 
 Backtests use **TA only** in v1. Microstructure and on-chain signals require live data feeds and aren't replayable from OHLCV alone.

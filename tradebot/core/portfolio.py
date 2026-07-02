@@ -35,7 +35,7 @@ class Portfolio:
     def __post_init__(self) -> None:
         self.cash = self.starting_cash
         self.sol_balance = self.starting_sol_balance
-        # Equity_high seeded from starting_cash only — SOL contribution depends on a mark
+        # Equity_high seeded from starting_cash only: SOL contribution depends on a mark
         # we don't have at construction time. update_equity_high() catches up on first cycle.
         self.equity_high = self.starting_cash
 
@@ -131,7 +131,7 @@ class Portfolio:
 
     @classmethod
     def from_state(cls, state: Any) -> Portfolio:
-        # state: PortfolioState — late import in caller to avoid cycle
+        # state: PortfolioState (late import in caller to avoid cycle)
         p = cls(
             mode=state.mode,
             starting_cash=state.cash,
