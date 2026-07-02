@@ -1,0 +1,44 @@
+[
+  {
+    "mode": "demo",
+    "pair": "SOL/USDC",
+    "side": "buy",
+    "base_amount": 0.1,
+    "quote_amount": 10.0,
+    "price": 100.0,
+    "fee_quote": 0.01,
+    "slippage_pct": 0.001,
+    "tx_signature": null,
+    "opened_at": "2026-05-03T12:00:00+00:00",
+    "confidence": 0.7,
+    "notes": null
+  },
+  {
+    "mode": "demo",
+    "pair": "SOL/USDC",
+    "side": "sell",
+    "base_amount": 0.1,
+    "quote_amount": 10.5,
+    "price": 105.0,
+    "fee_quote": 0.01,
+    "slippage_pct": 0.001,
+    "tx_signature": "5abcXYZ",
+    "opened_at": "2026-05-03T12:05:00+00:00",
+    "confidence": 0.8,
+    "notes": "tp hit"
+  },
+  {
+    "mode": "real",
+    "pair": "JUP/USDC",
+    "side": "buy",
+    "base_amount": 12.0,
+    "quote_amount": 10.2,
+    "price": 0.85,
+    "fee_quote": 0.02,
+    "slippage_pct": 0.002,
+    "tx_signature": null,
+    "opened_at": "2026-05-03T12:10:00+00:00",
+    "confidence": null,
+    "notes": null
+  }
+]

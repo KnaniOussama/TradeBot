@@ -1,0 +1,17 @@
+{
+  "trades_per_day": {
+    "2026-05-03": 4,
+    "2026-05-02": 1
+  },
+  "daily_start_equity": {
+    "2026-05-03": 50.0,
+    "2026-05-02": 48.0
+  },
+  "weekly_start_equity": {
+    "2026-04-27": 45.0
+  },
+  "day_paused_until": "2026-05-04",
+  "week_paused_until": null,
+  "kill_switch_active": true,
+  "kill_switch_reason": "drawdown 16% >= 15%"
+}
