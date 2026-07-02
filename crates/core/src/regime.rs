@@ -7,18 +7,23 @@
 //! The tricky part of this port is matching pandas' exact
 //! `Series.ewm(alpha=..., adjust=False).mean()` semantics, including its
 //! default `ignore_na=False` behavior for the leading `NaN` produced by
-//! `diff()` on the +DM/-DM series. Empirically (verified against a live
-//! pandas install), that behavior is:
+//! `diff()` on the +DM/-DM series. Verified against pandas 3.0.2, the
+//! behavior is:
 //!   - Leading NaNs before the first valid observation stay NaN.
 //!   - A NaN after the series has been seeded holds the previous output
 //!     value forward (visually unchanged).
 //!   - When the next valid observation `x` arrives after a gap of `g`
-//!     consecutive NaNs following a valid value `y`, the blended value is
-//!     `(1-alpha)^(g+1) * y + (1 - (1-alpha)^(g+1)) * x` -- i.e. the
-//!     position gap still counts toward the decay applied to `y`, it is
-//!     not simply skipped.
+//!     consecutive NaNs following a valid value `y`, the update is
+//!     `(w*y + alpha*x) / (w + alpha)` with `w = (1-alpha)^(g+1)`: the gap
+//!     counts toward the decay of `y` and the result is renormalized by the
+//!     total weight (this reduces to the plain `(1-alpha)*y + alpha*x`
+//!     recursion when the gap is zero).
 //!
-//! See `ewm_adjust_false` below, which implements exactly this rule.
+//! The gap-blend form is checked against real pandas output at the Wilder
+//! alpha `1/14` that the ADX pipeline uses (and at other alphas such as 0.3).
+//! In this pipeline the DMI/DX inputs only ever carry a leading NaN, never an
+//! internal gap, so the gap branch is a safety net rather than a hot path; the
+//! end-to-end `regime_parity` test against Python is the real guarantee.
 
 use rust_decimal::prelude::ToPrimitive;
 use tradebot_storage::Candle;
@@ -75,7 +80,7 @@ fn ewm_adjust_false(x: &[f64], alpha: f64) -> Vec<f64> {
             None => v,
             Some(prev) => {
                 let w_old = decay.powi(gap + 1);
-                w_old * prev + (1.0 - w_old) * v
+                (w_old * prev + alpha * v) / (w_old + alpha)
             }
         });
         gap = 0;
@@ -321,28 +326,69 @@ mod tests {
 
     #[test]
     fn ewm_adjust_false_matches_pandas_reference_vectors() {
-        // Captured from a live pandas install: Series(vals).ewm(alpha=0.5,
-        // adjust=False).mean(). See module doc comment.
+        // Captured from real pandas 3.0.2: Series(vals).ewm(alpha=0.3,
+        // adjust=False).mean(). Covers no-gap recursion, leading NaN, and
+        // internal gaps of 1 and 2. See module doc comment.
         let cases: &[(&[f64], &[f64])] = &[
-            (&[1.0, 2.0], &[1.0, 1.5]),
-            (&[1.0, f64::NAN, 2.0], &[1.0, 1.0, 1.75]),
-            (&[1.0, f64::NAN, f64::NAN, 2.0], &[1.0, 1.0, 1.0, 1.875]),
+            (&[1.0, 2.0], &[1.0, 1.3]),
+            (&[1.0, f64::NAN, 2.0], &[1.0, 1.0, 1.379_746_835_443]),
+            (
+                &[1.0, f64::NAN, f64::NAN, 2.0],
+                &[1.0, 1.0, 1.0, 1.466_562_986_003],
+            ),
             (
                 &[f64::NAN, 1.0, f64::NAN, f64::NAN, 2.0],
-                &[f64::NAN, 1.0, 1.0, 1.0, 1.875],
+                &[f64::NAN, 1.0, 1.0, 1.0, 1.466_562_986_003],
             ),
             (
                 &[1.0, 2.0, 3.0, f64::NAN, f64::NAN, 4.0],
-                &[1.0, 1.5, 2.25, 2.25, 2.25, 3.78125],
+                &[1.0, 1.3, 1.81, 1.81, 1.81, 2.831_772_939_347],
             ),
         ];
         for (input, expected) in cases {
-            let out = ewm_adjust_false(input, 0.5);
+            let out = ewm_adjust_false(input, 0.3);
             for (o, e) in out.iter().zip(expected.iter()) {
                 if e.is_nan() {
                     assert!(o.is_nan(), "expected NaN, got {o}");
                 } else {
                     assert!((o - e).abs() < 1e-12, "got {o} expected {e}");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn ewm_adjust_false_matches_pandas_at_production_alpha() {
+        // alpha = 1/14 is the alpha used by Wilder smoothing in the ADX
+        // pipeline. Unlike alpha=0.5, this exercises the NaN-gap renormalization
+        // in a regime where the naive (1-w) blend would diverge from pandas.
+        // Reference vectors captured from pandas ewm(alpha=1/14, adjust=False).
+        let alpha = 1.0 / 14.0;
+        let cases: &[(&[f64], &[f64])] = &[
+            (&[1.0, f64::NAN, 2.0], &[1.0, 1.0, 1.076_502_732_24]),
+            (
+                &[1.0, f64::NAN, f64::NAN, 2.0],
+                &[1.0, 1.0, 1.0, 1.081_905_557_877],
+            ),
+            (
+                &[1.0, 2.0, 3.0, f64::NAN, f64::NAN, 4.0],
+                &[
+                    1.0,
+                    1.071_428_571_429,
+                    1.209_183_673_469,
+                    1.209_183_673_469,
+                    1.209_183_673_469,
+                    1.437_767_041_627,
+                ],
+            ),
+        ];
+        for (input, expected) in cases {
+            let out = ewm_adjust_false(input, alpha);
+            for (o, e) in out.iter().zip(expected.iter()) {
+                if e.is_nan() {
+                    assert!(o.is_nan(), "expected NaN, got {o}");
+                } else {
+                    assert!((o - e).abs() < 1e-9, "got {o} expected {e}");
                 }
             }
         }
