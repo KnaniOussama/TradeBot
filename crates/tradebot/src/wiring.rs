@@ -258,13 +258,9 @@ async fn run_loop<E: Executor>(
     // still make network calls every cycle, burning the rate-limit budget
     // for nothing.
     let sig_weights = &cfg.weights.signals;
-    // NOTE: cfg.weights.timeframes is a BTreeMap (sorted key order), unlike
-    // Python's insertion-ordered dict, so "the first timeframe" can differ
-    // from the Python CLI whenever the declared and lexicographic orders
-    // disagree (the shipped default config declares 5s/1m/15m/1h, but
-    // BTreeMap iterates 15m/1h/1m/5s). This follows from the
-    // tradebot-config crate's BTreeMap choice made in an earlier phase, not
-    // something this wiring changes.
+    // cfg.weights.timeframes is an IndexMap, so key iteration order matches
+    // the config JSON's insertion order (Python dict semantics). "The first
+    // timeframe" therefore agrees with the Python CLI's pick.
     let micro_tf = timeframes
         .first()
         .cloned()
@@ -425,10 +421,11 @@ async fn run_loop<E: Executor>(
         );
     }
 
-    let timeframe_weights: HashMap<String, f64> =
-        cfg.weights.timeframes.clone().into_iter().collect();
-    let signal_weights: HashMap<String, f64> = cfg.weights.signals.clone().into_iter().collect();
-    let aggregator = SignalAggregator::new(signals, timeframe_weights, signal_weights);
+    let aggregator = SignalAggregator::new(
+        signals,
+        cfg.weights.timeframes.clone(),
+        cfg.weights.signals.clone(),
+    );
 
     // The dashboard hub is created here and the loop publishes snapshots to
     // it below, but the axum HTTP server that would serve those snapshots

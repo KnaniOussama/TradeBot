@@ -10,6 +10,7 @@
 use std::collections::HashMap;
 
 use chrono::{DateTime, Utc};
+use indexmap::IndexMap;
 use tradebot_signals::{clamp_score, MarketContext, Signal, SignalScore};
 
 /// Composite score for one pair at one instant, plus the individual signal
@@ -26,15 +27,18 @@ pub struct AggregatedScore {
 /// Mirrors `SignalAggregator` in aggregator.py.
 pub struct SignalAggregator {
     signals: Vec<Box<dyn Signal>>,
-    timeframe_weights: HashMap<String, f64>,
-    signal_weights: HashMap<String, f64>,
+    // IndexMap so key iteration order matches the config's JSON insertion
+    // order (Python dict semantics), needed by the trading loop's
+    // first-wins-on-ties regime-timeframe selection.
+    timeframe_weights: IndexMap<String, f64>,
+    signal_weights: IndexMap<String, f64>,
 }
 
 impl SignalAggregator {
     pub fn new(
         signals: Vec<Box<dyn Signal>>,
-        timeframe_weights: HashMap<String, f64>,
-        signal_weights: HashMap<String, f64>,
+        timeframe_weights: IndexMap<String, f64>,
+        signal_weights: IndexMap<String, f64>,
     ) -> Self {
         Self {
             signals,
@@ -47,7 +51,7 @@ impl SignalAggregator {
     /// loop to pick the "regime timeframe" (the highest-weight timeframe)
     /// for per-pair regime classification. Mirrors direct `self._tf_weights`
     /// access in loop.py.
-    pub fn timeframe_weights(&self) -> &HashMap<String, f64> {
+    pub fn timeframe_weights(&self) -> &IndexMap<String, f64> {
         &self.timeframe_weights
     }
 
@@ -138,7 +142,7 @@ mod tests {
         MarketContext::new(pair, Utc::now(), StdHashMap::new())
     }
 
-    fn weights(pairs: &[(&str, f64)]) -> HashMap<String, f64> {
+    fn weights(pairs: &[(&str, f64)]) -> IndexMap<String, f64> {
         pairs.iter().map(|(k, v)| (k.to_string(), *v)).collect()
     }
 

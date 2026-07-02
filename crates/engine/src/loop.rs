@@ -12,6 +12,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use chrono::{DateTime, Utc};
+use indexmap::IndexMap;
 use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use tokio::sync::Notify;
@@ -75,6 +76,24 @@ fn bucket_floor(ts: DateTime<Utc>, timeframe: &str) -> DateTime<Utc> {
         Some(_) => tradebot_data::bucket_for(ts, timeframe),
         None => ts,
     }
+}
+
+/// Picks the "regime timeframe": the timeframe with the highest weight,
+/// first-wins on ties. Mirrors Python's `max(items, key=...)`, which
+/// returns the first maximum encountered when iterating in (insertion)
+/// order. `weights` must be insertion-ordered (an `IndexMap`, not a
+/// `HashMap`/`BTreeMap`) for this to be deterministic and Python-matching;
+/// deliberately avoids `Iterator::max_by`, which returns the *last* maximum
+/// on ties.
+fn pick_regime_timeframe(weights: &IndexMap<String, f64>) -> Option<String> {
+    let mut best: Option<(&str, f64)> = None;
+    for (k, &v) in weights {
+        match best {
+            Some((_, best_v)) if v <= best_v => {}
+            _ => best = Some((k.as_str(), v)),
+        }
+    }
+    best.map(|(k, _)| k.to_string())
 }
 
 /// A cheap, cloneable stop signal shared between a `TradingLoop` and any
@@ -416,13 +435,9 @@ impl<'s, E: Executor> TradingLoop<'s, E> {
         self.risk
             .update_state(&mut self.portfolio, &mut self.state, equity, now);
 
-        // 4b. Classify regime per pair (highest-weight timeframe).
-        let regime_tf = self
-            .aggregator
-            .timeframe_weights()
-            .iter()
-            .max_by(|a, b| a.1.partial_cmp(b.1).unwrap_or(std::cmp::Ordering::Equal))
-            .map(|(k, _)| k.clone())
+        // 4b. Classify regime per pair (highest-weight timeframe, first-wins
+        //     on ties, mirroring Python's max(items, key=...)).
+        let regime_tf = pick_regime_timeframe(self.aggregator.timeframe_weights())
             .expect("timeframe_weights must not be empty (mirrors Python's max() on {})");
         let mut regimes: HashMap<String, Regime> = HashMap::new();
         for pair in &self.pairs {
@@ -800,5 +815,40 @@ impl<'s, E: Executor> TradingLoop<'s, E> {
         let marks_snapshot = self.latest_marks.clone();
         let scored_snapshot = self.latest_scored.clone();
         self.publish_snapshot(&marks_snapshot, &scored_snapshot, now);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn pick_regime_timeframe_is_first_wins_on_ties() {
+        // 1m and 15m tie at 0.4; Python's max(items, key=...) returns the
+        // first maximum in iteration order, so 1m must win, not 15m.
+        let weights = IndexMap::from([
+            ("5s".to_string(), 0.1),
+            ("1m".to_string(), 0.4),
+            ("15m".to_string(), 0.4),
+            ("1h".to_string(), 0.1),
+        ]);
+        assert_eq!(pick_regime_timeframe(&weights).as_deref(), Some("1m"));
+    }
+
+    #[test]
+    fn pick_regime_timeframe_picks_strict_max() {
+        let weights = IndexMap::from([
+            ("5s".to_string(), 0.10),
+            ("1m".to_string(), 0.20),
+            ("15m".to_string(), 0.30),
+            ("1h".to_string(), 0.40),
+        ]);
+        assert_eq!(pick_regime_timeframe(&weights).as_deref(), Some("1h"));
+    }
+
+    #[test]
+    fn pick_regime_timeframe_empty_is_none() {
+        let weights: IndexMap<String, f64> = IndexMap::new();
+        assert_eq!(pick_regime_timeframe(&weights), None);
     }
 }

@@ -2,8 +2,9 @@
 //! the built `tradebot` binary end-to-end and asserts on its exit code and
 //! output, the way the Python tests drive `click`'s `CliRunner`.
 
-use std::collections::BTreeMap;
 use std::fs;
+
+use indexmap::IndexMap;
 
 use assert_cmd::Command;
 use predicates::prelude::*;
@@ -203,7 +204,7 @@ async fn start_demo_runs_a_few_cycles_offline() {
     cfg.dashboard.enabled = false;
     // Only the offline TA signal; microstructure/onchain would need extra
     // Jupiter/Helius calls this test does not mock.
-    cfg.weights.signals = BTreeMap::from([("ta".to_string(), 1.0)]);
+    cfg.weights.signals = IndexMap::from([("ta".to_string(), 1.0)]);
     tradebot_config::save_config(&config_path, &cfg).expect("save test config");
 
     bin()

@@ -220,12 +220,16 @@ impl RiskConfig {
     }
 }
 
-use std::collections::BTreeMap;
+use indexmap::IndexMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct WeightsConfig {
-    pub timeframes: BTreeMap<String, f64>,
-    pub signals: BTreeMap<String, f64>,
+    // IndexMap (not BTreeMap/HashMap) so key iteration order matches JSON
+    // insertion order, mirroring Python dict semantics. Consumers such as
+    // "the first timeframe" (micro_tf) and regime-timeframe selection depend
+    // on this order.
+    pub timeframes: IndexMap<String, f64>,
+    pub signals: IndexMap<String, f64>,
 }
 
 impl WeightsConfig {
@@ -498,13 +502,13 @@ mod tests {
     #[test]
     fn weights_reject_unnormalized() {
         let w = WeightsConfig {
-            timeframes: BTreeMap::from([
+            timeframes: IndexMap::from([
                 ("5s".into(), 0.5),
                 ("1m".into(), 0.5),
                 ("15m".into(), 0.5),
                 ("1h".into(), 0.5),
             ]),
-            signals: BTreeMap::from([("ta".into(), 1.0)]),
+            signals: IndexMap::from([("ta".into(), 1.0)]),
         };
         assert!(w.validate().is_err());
     }
@@ -512,19 +516,32 @@ mod tests {
     #[test]
     fn weights_accept_normalized() {
         let w = WeightsConfig {
-            timeframes: BTreeMap::from([
+            timeframes: IndexMap::from([
                 ("5s".into(), 0.1),
                 ("1m".into(), 0.2),
                 ("15m".into(), 0.3),
                 ("1h".into(), 0.4),
             ]),
-            signals: BTreeMap::from([
+            signals: IndexMap::from([
                 ("ta".into(), 0.4),
                 ("microstructure".into(), 0.3),
                 ("onchain".into(), 0.3),
             ]),
         };
         assert!(w.validate().is_ok());
+    }
+
+    #[test]
+    fn weights_timeframes_preserve_json_insertion_order() {
+        // serde_json deserializes object keys in document order, and
+        // IndexMap preserves that order (unlike BTreeMap, which would
+        // re-sort to 15m, 1h, 1m, 5s). Consumers such as micro_tf and
+        // regime-timeframe selection rely on this matching Python's dict
+        // insertion-order semantics.
+        let json = r#"{"5s":0.1,"1m":0.2,"15m":0.3,"1h":0.4}"#;
+        let timeframes: IndexMap<String, f64> = serde_json::from_str(json).unwrap();
+        let keys: Vec<&str> = timeframes.keys().map(String::as_str).collect();
+        assert_eq!(keys, vec!["5s", "1m", "15m", "1h"]);
     }
 
     #[test]

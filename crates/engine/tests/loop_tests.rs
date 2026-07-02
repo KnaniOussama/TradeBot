@@ -1,5 +1,6 @@
 //! Port of `tests/core/test_loop.py`.
 
+use indexmap::IndexMap;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
@@ -84,8 +85,8 @@ async fn one_cycle_enters_position() {
     let state = RiskState::default();
     let aggregator = SignalAggregator::new(
         vec![Box::new(BullSignal)],
-        HashMap::from([("1m".to_string(), 1.0)]),
-        HashMap::from([("ta".to_string(), 1.0)]),
+        IndexMap::from([("1m".to_string(), 1.0)]),
+        IndexMap::from([("ta".to_string(), 1.0)]),
     );
     let engine = DecisionEngine::new(RiskManager::new(RiskConfig::default()), 0.6, -0.3);
 
@@ -135,8 +136,8 @@ async fn one_cycle_writes_equity_snapshot() {
     let state = RiskState::default();
     let aggregator = SignalAggregator::new(
         Vec::new(),
-        HashMap::from([("1m".to_string(), 1.0)]),
-        HashMap::new(),
+        IndexMap::from([("1m".to_string(), 1.0)]),
+        IndexMap::new(),
     );
     let engine = DecisionEngine::new(RiskManager::new(RiskConfig::default()), 0.6, -0.3);
 
@@ -185,8 +186,8 @@ async fn one_cycle_publishes_to_hub() {
     let state = RiskState::default();
     let aggregator = SignalAggregator::new(
         Vec::new(),
-        HashMap::from([("1m".to_string(), 1.0)]),
-        HashMap::new(),
+        IndexMap::from([("1m".to_string(), 1.0)]),
+        IndexMap::new(),
     );
     let engine = DecisionEngine::new(RiskManager::new(RiskConfig::default()), 0.6, -0.3);
     let hub = std::sync::Arc::new(DashboardHub::default());
@@ -241,8 +242,8 @@ async fn one_cycle_persists_portfolio_risk_and_mark_history() {
     let state = RiskState::default();
     let aggregator = SignalAggregator::new(
         Vec::new(),
-        HashMap::from([("1m".to_string(), 1.0)]),
-        HashMap::new(),
+        IndexMap::from([("1m".to_string(), 1.0)]),
+        IndexMap::new(),
     );
     let engine = DecisionEngine::new(RiskManager::new(RiskConfig::default()), 0.6, -0.3);
 
@@ -295,8 +296,8 @@ async fn one_cycle_buffers_observations() {
     let state = RiskState::default();
     let aggregator = SignalAggregator::new(
         vec![Box::new(BullSignal)],
-        HashMap::from([("1m".to_string(), 1.0)]),
-        HashMap::from([("ta".to_string(), 1.0)]),
+        IndexMap::from([("1m".to_string(), 1.0)]),
+        IndexMap::from([("ta".to_string(), 1.0)]),
     );
     let engine = DecisionEngine::new(RiskManager::new(RiskConfig::default()), 0.6, -0.3);
 
@@ -345,8 +346,8 @@ async fn one_cycle_publishes_decisions_in_snapshot() {
     let state = RiskState::default();
     let aggregator = SignalAggregator::new(
         vec![Box::new(BullSignal)],
-        HashMap::from([("1m".to_string(), 1.0)]),
-        HashMap::from([("ta".to_string(), 1.0)]),
+        IndexMap::from([("1m".to_string(), 1.0)]),
+        IndexMap::from([("ta".to_string(), 1.0)]),
     );
     let engine = DecisionEngine::new(RiskManager::new(RiskConfig::default()), 0.6, -0.3);
     let hub = std::sync::Arc::new(DashboardHub::default());
