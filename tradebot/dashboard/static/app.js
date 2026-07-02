@@ -214,7 +214,7 @@
             return `<div class="lineage">
                 <div class="lineage-head">
                     <span class="lineage-title">${pair} · trade history</span>
-                    <span class="lineage-summary">no lineage data — backend will populate after next trade</span>
+                    <span class="lineage-summary">no lineage data, backend will populate after next trade</span>
                 </div>
             </div>`;
         }
@@ -429,7 +429,7 @@
                 return;
             }
             if (status) {
-                status.textContent = "queued — executes within one cycle";
+                status.textContent = "queued, executes within one cycle";
                 status.className = "sell-modal-status mono ok";
             }
             setTimeout(closeSellModal, 900);
@@ -677,7 +677,7 @@
         if (!tbody) return;
         // crude direction inference: if in_mint is a stable-coin pattern (ends w/ "v"
         // for USDC) we call it a buy; otherwise mark as "swap". We don't truly know
-        // without decimals/USD pricing — so just label the leg flow.
+        // without decimals/USD pricing, so just label the leg flow.
         tbody.innerHTML = swaps.slice(0, 30).map((s) => {
             const ts = (s.ts || "").slice(0, 19).replace("T", " ");
             return `<tr>
@@ -721,7 +721,7 @@
     }
 
     // ---------- pause / resume controls ----------
-    // Optimistic local override — clears as soon as the snapshot reflects it.
+    // Optimistic local override, clears as soon as the snapshot reflects it.
     const pendingPause = {}; // { buys?: bool, sells?: bool }
     let pauseInflight = false;
 
@@ -756,15 +756,15 @@
         }
         banner.hidden = false;
         let text;
-        if (all) text = "all trading paused — bot is observing only";
-        else if (c.paused_buys) text = "buys paused — exits & sells still active";
-        else text = "sells paused — bot can open new positions but won't close";
+        if (all) text = "all trading paused, bot is observing only";
+        else if (c.paused_buys) text = "buys paused, exits & sells still active";
+        else text = "sells paused, bot can open new positions but won't close";
         if (msg) msg.textContent = text;
     }
 
     async function postControl(payload) {
         // Optimistic UI: keep local state regardless of backend response.
-        // The next snapshot's `control` field is the source of truth — if the
+        // The next snapshot's `control` field is the source of truth, if the
         // backend is wired and disagrees, reconcilePending() will clear pendingPause.
         // 404 (backend not yet implemented) is logged but does not roll back.
         if (pauseInflight) return;
@@ -777,7 +777,7 @@
             });
             if (!r.ok) {
                 if (r.status === 404) {
-                    console.info("control endpoint not yet wired (404) — UI stays optimistic");
+                    console.info("control endpoint not yet wired (404), UI stays optimistic");
                 } else {
                     console.warn("control POST rejected", r.status);
                 }
@@ -925,10 +925,10 @@
                   help: "How often the bot wakes up, checks prices, and decides what to do. Lower = react faster but use more rate-limit budget. 10s is the sweet spot for Solana intraday.",
                   kind: "slider", min: 2, max: 60, step: 1, unit: "s" },
                 { path: "app.fast_tick_interval_s", label: "Chart refresh interval",
-                  help: "How often the chart updates with fresh Birdeye prices (independent of decisions). The Birdeye free tier is ~1 rps total — with N watched mints, the realistic floor is N seconds per full refresh. Set to 0 to disable; otherwise use ≥ (mints / rps). On paid Starter tier (30 rps) you can go to 1s.",
+                  help: "How often the chart updates with fresh Birdeye prices (independent of decisions). The Birdeye free tier is ~1 rps total, with N watched mints, the realistic floor is N seconds per full refresh. Set to 0 to disable; otherwise use ≥ (mints / rps). On paid Starter tier (30 rps) you can go to 1s.",
                   kind: "slider", min: 0, max: 30, step: 1, unit: "s" },
                 { path: "app.simulated_confirm_latency_s", label: "Demo confirmation latency",
-                  help: "Mimics the delay between getting a quote and the trade actually filling on chain. The bot re-quotes after this delay and uses the new (worse) number — so demo P&L matches what real mode would deliver.",
+                  help: "Mimics the delay between getting a quote and the trade actually filling on chain. The bot re-quotes after this delay and uses the new (worse) number, so demo P&L matches what real mode would deliver.",
                   kind: "slider", min: 0, max: 3, step: 0.1, unit: "s" },
             ],
         },
@@ -968,7 +968,7 @@
                   help: "Let the bot classify the market as trending vs. choppy and use that in its decisions.",
                   kind: "toggle" },
                 { path: "risk.regime_block_chop", label: "Block new trades in chop",
-                  help: "Refuse new entries when the market is choppy/sideways. Chop is where trend-followers die — this saves you from a thousand small losses.",
+                  help: "Refuse new entries when the market is choppy/sideways. Chop is where trend-followers die, this saves you from a thousand small losses.",
                   kind: "toggle" },
                 { path: "risk.use_kelly_sizing", label: "Kelly criterion sizing",
                   help: "Size positions by your recent win rate. Bigger trades when you've been winning, smaller when losing. Off = always use the max.",
@@ -1026,7 +1026,7 @@
                   help: "When on, the bot fetches recent swaps for each watched wallet every cycle and feeds them into the composite via the whale_follow signal weight.",
                   kind: "toggle" },
                 { path: "whales.wallets", label: "Watched wallets",
-                  help: "Solana addresses to mirror. The label is just a memo for you. Pick wallets with documented multi-month track records on Birdeye or Dune — anonymous Twitter alpha is noise.",
+                  help: "Solana addresses to mirror. The label is just a memo for you. Pick wallets with documented multi-month track records on Birdeye or Dune, anonymous Twitter alpha is noise.",
                   kind: "wallets" },
                 { path: "whales.lookback_minutes", label: "Lookback window",
                   help: "How far back to consider whale activity. Older swaps still factor in but with exponential decay (see half-life below).",
@@ -1045,7 +1045,7 @@
             description: "Starting capital and gas reserve.",
             fields: [
                 { path: "app.starting_capital_usd", label: "Starting USDC capital",
-                  help: "How much USDC the bot starts with. Only used on a fresh run — resumed sessions keep their actual balance.",
+                  help: "How much USDC the bot starts with. Only used on a fresh run, resumed sessions keep their actual balance.",
                   kind: "money", min: 5, max: 10000, step: 1, restartRequired: true },
                 { path: "app.starting_sol_balance", label: "Starting SOL for gas",
                   help: "How much SOL is reserved for transaction fees. ~0.05 SOL is enough for ~10,000 swaps at zero priority fee.",
@@ -1077,7 +1077,7 @@
                   help: "How many times to retry when Jupiter rate-limits us before giving up.",
                   kind: "stepper", min: 0, max: 10, step: 1, advanced: true },
                 { path: "app.birdeye_api_key_env", label: "Birdeye API key",
-                  help: "Free key from birdeye.so (Sign in → Developer → API Keys). When set, the bot uses one batched Birdeye call per cycle for live mark prices instead of N Jupiter probes — frees the Jupiter rate budget so you can watch many more tokens. Paste the literal key OR an env var name (uppercase).",
+                  help: "Free key from birdeye.so (Sign in → Developer → API Keys). When set, the bot uses one batched Birdeye call per cycle for live mark prices instead of N Jupiter probes, frees the Jupiter rate budget so you can watch many more tokens. Paste the literal key OR an env var name (uppercase).",
                   kind: "text", advanced: true, restartRequired: true },
                 { path: "app.birdeye_base_url", label: "Birdeye base URL",
                   help: "Public Birdeye API endpoint. Don't change unless you have a paid plan with a different host.",
