@@ -17,10 +17,21 @@ use crate::keystore::{decrypt_keystore, encrypt_secret, load_keystore, save_keys
 
 /// The bot's Solana keypair: a base58 address and the raw secret bytes as
 /// stored in the keystore (32-byte seed, or 64-byte seed||pubkey).
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct BotKeypair {
     pub address: String,
     pub secret_bytes: Vec<u8>,
+}
+
+// Manual Debug that never prints the private key. Deriving Debug would leak
+// `secret_bytes` (the raw seed) into any `{:?}` / tracing debug output.
+impl std::fmt::Debug for BotKeypair {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BotKeypair")
+            .field("address", &self.address)
+            .field("secret_bytes", &"<redacted>")
+            .finish()
+    }
 }
 
 impl BotKeypair {
