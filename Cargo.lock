@@ -1745,6 +1745,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "tradebot-core"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "rust_decimal",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tradebot-common",
+ "tradebot-config",
+ "tradebot-storage",
+]
+
+[[package]]
 name = "tradebot-data"
 version = "0.1.0"
 dependencies = [

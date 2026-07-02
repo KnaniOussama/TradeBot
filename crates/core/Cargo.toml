@@ -1,0 +1,16 @@
+[package]
+name = "tradebot-core"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+tradebot-common = { path = "../common" }
+tradebot-config = { path = "../config" }
+tradebot-storage = { path = "../storage" }
+chrono = { workspace = true }
+rust_decimal = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
