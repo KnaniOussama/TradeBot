@@ -1,0 +1,9 @@
+[package]
+name = "tradebot"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "tradebot"
+path = "src/main.rs"
