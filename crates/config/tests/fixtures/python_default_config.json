@@ -1,0 +1,100 @@
+{
+  "config_version": 1,
+  "data_dir": "data",
+  "app": {
+    "rpc_url": "https://api.devnet.solana.com",
+    "helius_api_key_env": "HELIUS_API_KEY",
+    "log_level": "INFO",
+    "starting_capital_usd": 50.0,
+    "jupiter_base_url": "https://quote-api.jup.ag/v6",
+    "price_poll_interval_s": 5.0,
+    "decision_interval_s": 10.0,
+    "jupiter_rate_limit_rps": 0.9,
+    "jupiter_rate_limit_burst": 5,
+    "jupiter_max_429_retries": 3,
+    "entry_threshold": 0.6,
+    "exit_flip_threshold": -0.3,
+    "helius_base_url": "https://api.helius.xyz",
+    "onchain_dex_addresses": [],
+    "onchain_whale_min": 1000.0,
+    "birdeye_api_key_env": "",
+    "birdeye_base_url": "https://public-api.birdeye.so",
+    "birdeye_rate_limit_rps": 0.9,
+    "birdeye_rate_limit_burst": 2,
+    "birdeye_max_429_retries": 2,
+    "fast_tick_interval_s": 0.0,
+    "simulated_fee_bps": 10,
+    "dashboard_enabled": true,
+    "dashboard_host": "127.0.0.1",
+    "dashboard_port": 8765,
+    "keystore_path": "keystore/bot.keystore.json",
+    "priority_fee_microlamports": 0,
+    "confirmation_timeout_s": 30.0,
+    "starting_sol_balance": 0.05,
+    "simulated_confirm_latency_s": 1.0
+  },
+  "risk": {
+    "max_concurrent_positions": 3,
+    "per_trade_size_min": 0.3,
+    "per_trade_size_max": 0.5,
+    "trailing_stop_pct": 0.02,
+    "take_profit_pct": 0.02,
+    "daily_loss_limit_pct": 0.08,
+    "weekly_loss_limit_pct": 0.1,
+    "per_trade_kill_pct": 0.03,
+    "drawdown_circuit_pct": 0.15,
+    "max_slippage_pct": 0.01,
+    "max_trades_per_day": 10,
+    "tp_ladder_pct": 0.02,
+    "tp_ladder_fraction": 0.5,
+    "regime_filter_enabled": true,
+    "regime_block_chop": true,
+    "use_kelly_sizing": true
+  },
+  "weights": {
+    "timeframes": {
+      "5s": 0.1,
+      "1m": 0.2,
+      "15m": 0.3,
+      "1h": 0.4
+    },
+    "signals": {
+      "ta": 0.4,
+      "microstructure": 0.3,
+      "onchain": 0.3
+    }
+  },
+  "watchlist": {
+    "quote_symbol": "USDC",
+    "quote_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "entries": [
+      {
+        "symbol": "SOL",
+        "mint": "So11111111111111111111111111111111111111112",
+        "decimals": 9
+      },
+      {
+        "symbol": "JUP",
+        "mint": "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN",
+        "decimals": 6
+      },
+      {
+        "symbol": "JTO",
+        "mint": "jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL",
+        "decimals": 9
+      }
+    ]
+  },
+  "dashboard": {
+    "enabled": true,
+    "host": "127.0.0.1",
+    "port": 8765
+  },
+  "whales": {
+    "enabled": false,
+    "wallets": [],
+    "lookback_minutes": 30,
+    "decay_half_life_minutes": 10.0,
+    "per_wallet_swap_limit": 20
+  }
+}
