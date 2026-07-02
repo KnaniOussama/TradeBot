@@ -1,0 +1,17 @@
+{
+  "ohlcv_sol_choppy.csv": {
+    "adx": 44.867735264286644,
+    "ema_fast_above_slow": true,
+    "label": "trending_up"
+  },
+  "ohlcv_sol_downtrend.csv": {
+    "adx": 56.601090486301445,
+    "ema_fast_above_slow": false,
+    "label": "trending_down"
+  },
+  "ohlcv_sol_uptrend.csv": {
+    "adx": 46.70080228681914,
+    "ema_fast_above_slow": true,
+    "label": "trending_up"
+  }
+}
