@@ -6,6 +6,7 @@ pub mod birdeye;
 pub mod error;
 pub mod helius;
 pub mod jupiter;
+pub mod ohlcv;
 pub mod prices;
 pub mod rate_limiter;
 pub mod rpc;
@@ -16,6 +17,7 @@ pub use helius::{
     filter_for_mint, get_recent_swaps_for_wallet, HeliusClient, TokenTransfer, WhaleSwap,
 };
 pub use jupiter::{JupiterClient, JupiterQuote, JupiterSwap};
+pub use ohlcv::{bucket_for, timeframe_seconds, OhlcvAggregator};
 pub use prices::{PriceFeed, PriceTick};
 pub use rate_limiter::{RateLimiterMetrics, TokenBucketLimiter};
 pub use rpc::{LatestBlockhash, SignatureStatus, SolanaRpcClient};

@@ -1740,12 +1740,15 @@ dependencies = [
  "chrono",
  "rand 0.8.6",
  "reqwest",
+ "rust_decimal",
  "serde",
  "serde_json",
+ "tempfile",
  "thiserror 1.0.69",
  "tokio",
  "tracing",
  "tradebot-common",
+ "tradebot-storage",
  "wiremock",
 ]
 
