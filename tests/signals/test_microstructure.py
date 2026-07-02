@@ -172,4 +172,4 @@ async def test_microstructure_caches_depth_within_cycle(httpx_mock):
         sig.set_cycle_token(123)
         ctx = MarketContext(pair="X/Y", now=datetime.now(UTC), ohlcv={"1m": df})
         await sig.score(ctx)
-        await sig.score(ctx)  # second call within same cycle — should not re-query Jupiter
+        await sig.score(ctx)  # second call within same cycle: should not re-query Jupiter

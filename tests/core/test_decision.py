@@ -291,7 +291,7 @@ def test_missing_regime_allows_entry():
         portfolio=p,
         state=RiskState(),
         now=datetime.now(UTC),
-        regimes={},  # empty — no regime data
+        regimes={},  # empty: no regime data
     )
     enters = [a for a in actions if a.kind == "enter"]
     assert len(enters) == 1

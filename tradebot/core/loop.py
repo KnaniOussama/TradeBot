@@ -278,7 +278,7 @@ class TradingLoop:
                         mark=marks.get(req.pair, pos.avg_entry_price),
                         regime=regimes[req.pair].label if req.pair in regimes else None,
                         decision="exit",
-                        reason=f"manual sell — {req.reason}",
+                        reason=f"manual sell: {req.reason}",
                         size_base=pos.base_amount,
                     ),
                 )
@@ -420,7 +420,7 @@ class TradingLoop:
                 except TimeoutError:
                     pass
             else:
-                # Cycle overran — reset the schedule to "now" so we don't burn CPU catching up.
+                # Cycle overran: reset the schedule to "now" so we don't burn CPU catching up.
                 next_start = loop.time()
 
     async def run_fast_ticks(self, interval_s: float) -> None:
@@ -428,7 +428,7 @@ class TradingLoop:
         the dashboard snapshot at sub-second cadence between decision cycles.
 
         Skips entirely when:
-          - no Birdeye client (would need Jupiter probes — too expensive at 1s)
+          - no Birdeye client (would need Jupiter probes, too expensive at 1s)
           - no dashboard hub (nothing to publish to)
           - no cached scored signals yet (first decision cycle hasn't run)
 

@@ -21,10 +21,10 @@ Please include:
 
 Especially interested in issues affecting:
 
-- The encrypted keystore (`tradebot/wallet/` — Argon2id + AES-256-GCM).
+- The encrypted keystore (`tradebot/wallet/`, Argon2id + AES-256-GCM).
 - Anything that could leak a private key, passphrase, or API key.
 - Transaction construction / slippage handling in `tradebot/execution/real.py`.
-- The dashboard (`tradebot/dashboard/`) — note it ships **without authentication**
+- The dashboard (`tradebot/dashboard/`), noting it ships **without authentication**
   and is intended to bind to `127.0.0.1`. Exposing it publicly is out of scope
   unless there's an issue beyond "the user exposed an unauthenticated service."
 

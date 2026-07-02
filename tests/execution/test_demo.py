@@ -175,7 +175,7 @@ async def test_demo_rejects_when_drift_exceeds_max_slippage(storage, httpx_mock)
             base_mints={"SOL/USDC": ("So11111111111111111111111111111111111111112", 9)},
             quote_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
             quote_decimals=6,
-            max_slippage_pct=0.01,  # 1% — drift is ~3.6%, should fail
+            max_slippage_pct=0.01,  # 1%, drift is ~3.6%, should fail
             confirm_latency_s=0.0,
         )
         with pytest.raises(ExecutionError, match="drift"):

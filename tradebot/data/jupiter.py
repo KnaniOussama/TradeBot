@@ -82,7 +82,7 @@ class JupiterClient:
             resp: httpx.Response = await fn(url, **kwargs)
             if resp.status_code != 429:
                 return resp
-            # 429 — record and decide retry
+            # 429: record and decide retry
             if self._limiter is not None:
                 self._limiter.record_429()
             if attempt >= self._max_429_retries:

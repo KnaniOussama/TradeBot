@@ -80,14 +80,14 @@ class DemoExecutor:
         else:
             raise ExecutionError(f"unknown side: {order.side}")
 
-        # 1. Trigger quote — gates the decision (same role as RealExecutor's pre-check).
+        # 1. Trigger quote: gates the decision (same role as RealExecutor's pre-check).
         trigger_q = await self._quote(in_mint=in_mint, out_mint=out_mint, in_units=in_units)
         if trigger_q.price_impact_pct > self._max_slippage:
             raise ExecutionError(
                 f"slippage {trigger_q.price_impact_pct:.4f} > max {self._max_slippage}"
             )
 
-        # 2. Simulate confirmation latency, then re-quote — the FILL uses this number.
+        # 2. Simulate confirmation latency, then re-quote: the FILL uses this number.
         if self._confirm_latency > 0:
             await asyncio.sleep(self._confirm_latency)
         fill_q = await self._quote(in_mint=in_mint, out_mint=out_mint, in_units=in_units)

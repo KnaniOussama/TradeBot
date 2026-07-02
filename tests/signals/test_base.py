@@ -61,7 +61,7 @@ def test_rolling_zscore_normal_case():
 def test_rolling_zscore_zero_variance():
     series = pd.Series([5.0] * 20)
     z = rolling_zscore(series, window=5)
-    # All zeros (or NaN safely handled) — never inf
+    # All zeros (or NaN safely handled), never inf
     assert not z.iloc[-1] != z.iloc[-1] * 1  # not inf
     assert abs(z.iloc[-1]) < 1e9
 

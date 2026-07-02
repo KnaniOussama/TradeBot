@@ -34,7 +34,7 @@ def compute_metrics(
         if dd > max_dd:
             max_dd = dd
 
-    # Sharpe — per-bar returns annualized
+    # Sharpe: per-bar returns annualized
     if len(equities) < 2:
         sharpe = 0.0
     else:

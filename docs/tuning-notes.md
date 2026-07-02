@@ -1,4 +1,4 @@
-# Regime Filter & Kelly Sizing — Design Notes
+# Regime Filter & Kelly Sizing: Design Notes
 
 Background on two of the more opinionated risk knobs: the **regime filter** and
 **Kelly position sizing**. Both default to on.
@@ -15,7 +15,7 @@ the four combinations to backtest:
 | false | false | true  | Kelly sizing, no regime gate |
 | true  | true  | true  | Both on (the shipped defaults) |
 
-> No benchmark numbers are published here — results depend entirely on the pairs,
+> No benchmark numbers are published here: results depend entirely on the pairs,
 > period, and market conditions you test against. Run your own backtests (see the
 > **Backtest** tab in the dashboard) before trusting any configuration with real funds.
 
@@ -46,7 +46,7 @@ Settings tab).
 - The backtest runner does **not** compute regimes per-bar (see
   `tests/backtest/test_regime_backtest.py`). Regime-filtered results in a backtest
   will not match live behaviour until per-bar regime classification is wired in.
-- Kelly's `round_trip_returns` treats partial sells as full closes — an acceptable
+- Kelly's `round_trip_returns` treats partial sells as full closes, an acceptable
   approximation, but it can overstate returns if the take-profit ladder fires often.
 - ADX warmup needs `max(adx_period, ema_slow) + 5` bars. On short histories the
   regime defaults to `neutral` (entries allowed), so sparse OHLCV effectively

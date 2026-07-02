@@ -11,7 +11,7 @@ from tradebot.wallet.reconcile import reconcile
 @pytest.mark.asyncio
 async def test_reconcile_matches_returns_no_findings():
     p = Portfolio(mode="real", starting_cash=0.0)
-    # Wallet has 0.1 SOL, portfolio expects nothing — that's fine, unallocated funds OK
+    # Wallet has 0.1 SOL, portfolio expects nothing: that's fine, unallocated funds OK
     rpc = AsyncMock()
     rpc.get_balance_sol = AsyncMock(return_value=0.05)
     findings = await reconcile(

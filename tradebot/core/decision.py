@@ -166,7 +166,7 @@ class DecisionEngine:
                 continue
             # trailing stop
             peak = self._peak_for(pos.pair, fallback=entry)
-            trailing_pct = self._risk._cfg.trailing_stop_pct  # noqa: SLF001 — internal access by design
+            trailing_pct = self._risk._cfg.trailing_stop_pct  # noqa: SLF001 (internal access)
             if peak > 0 and (peak - mark) / peak >= trailing_pct:
                 actions.append(
                     Action(
@@ -216,7 +216,7 @@ class DecisionEngine:
                 )
                 continue
 
-            # No exit triggered — emit hold observation for open position
+            # No exit triggered: emit hold observation for open position
             if pos.pair not in obs_map:
                 obs_map[pos.pair] = Observation(
                     timestamp=ts,
@@ -228,7 +228,7 @@ class DecisionEngine:
                     reason="trailing stop OK / no exit triggered",
                 )
 
-        # 2. Entry logic — skip if kill switch active
+        # 2. Entry logic: skip if kill switch active
         if state.kill_switch_active:
             # Emit hold observations for scored pairs without open positions
             for s in scores:
@@ -242,7 +242,7 @@ class DecisionEngine:
                         mark=mark,
                         regime=regime_lbl,
                         decision="hold",
-                        reason="kill switch active — entries blocked",
+                        reason="kill switch active: entries blocked",
                     )
             return actions, list(obs_map.values())
 
@@ -359,7 +359,7 @@ class DecisionEngine:
                     mark=mark,
                     regime=regime_lbl,
                     decision="hold",
-                    reason="size computed as zero — insufficient cash or sizing limit",
+                    reason="size computed as zero: insufficient cash or sizing limit",
                 )
 
         return actions, list(obs_map.values())

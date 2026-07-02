@@ -3,7 +3,7 @@
 NOTE: Regime gating is skipped in the backtest runner v1 (regimes= parameter
 not passed to engine.decide). This test validates that different RiskConfig
 settings (regime_filter_enabled True/False) passed to run_backtest produce
-identical results in the current implementation — a TODO for v2 is to wire
+identical results in the current implementation. A TODO for v2 is to wire
 regime computation into the runner. This test documents that known omission.
 """
 
@@ -20,7 +20,7 @@ from tradebot.signals.base import MarketContext, SignalScore
 
 
 def _make_ohlcv_uptrend(n: int) -> pd.DataFrame:
-    """Clear uptrend OHLCV fixture — strong directional move."""
+    """Clear uptrend OHLCV fixture, strong directional move."""
     rows = []
     base_ts = datetime(2026, 5, 1, tzinfo=UTC)
     price = 100.0

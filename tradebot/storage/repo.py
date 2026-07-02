@@ -92,7 +92,7 @@ class JsonStorage:
             return = (sell_quote_net - buy_quote_cost) / buy_quote_cost
         where buy_quote_cost = quote_amount + fee_quote
         and   sell_quote_net = quote_amount - fee_quote.
-        Partial sells are treated as full closes — documented approximation.
+        Partial sells are treated as full closes, documented approximation.
         """
         trades = self.list_trades(mode=mode, limit=limit * 2)
         if pair:
@@ -206,7 +206,7 @@ class JsonStorage:
         path = self._ohlcv_path(candle.pair, candle.timeframe)
         existing = read_json_or_default(path, default=[])
         bucket_iso = candle.bucket_start.isoformat()
-        # Replace if same bucket exists (last one — append-mostly assumption)
+        # Replace if same bucket exists (last one, append-mostly assumption)
         idx = None
         for i in range(len(existing) - 1, -1, -1):
             if existing[i]["bucket_start"] == bucket_iso:

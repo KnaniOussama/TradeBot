@@ -97,7 +97,7 @@ def _amount_to_raw(transfer: dict[str, Any]) -> int:
 
     Prefers `rawTokenAmount.tokenAmount` when present (lossless). Falls back to
     `tokenAmount × 1e6` (works for USDC and most 6-dec SPL tokens; over/underestimates
-    other decimals — used only for relative ranking, not accounting).
+    other decimals; used only for relative ranking, not accounting).
     """
     raw = transfer.get("rawTokenAmount")
     if isinstance(raw, dict):
