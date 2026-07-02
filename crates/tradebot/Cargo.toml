@@ -7,3 +7,26 @@ license.workspace = true
 [[bin]]
 name = "tradebot"
 path = "src/main.rs"
+
+[dependencies]
+tradebot-common = { path = "../common" }
+tradebot-config = { path = "../config" }
+tradebot-storage = { path = "../storage" }
+tradebot-core = { path = "../core" }
+tradebot-signals = { path = "../signals" }
+tradebot-data = { path = "../data" }
+tradebot-execution = { path = "../execution" }
+tradebot-wallet = { path = "../wallet" }
+tradebot-engine = { path = "../engine" }
+clap = { version = "4", features = ["derive"] }
+tokio = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }
+rust_decimal = { workspace = true }
+
+[dev-dependencies]
+assert_cmd = "2"
+predicates = "3"
+tempfile = "3"
+wiremock = "0.6"
+serde_json = { workspace = true }

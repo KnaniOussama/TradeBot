@@ -178,6 +178,11 @@ pub struct TradingLoopOptions {
     pub manual_actions: Option<Arc<ManualActionQueue>>,
     pub whale_tracker: Option<Arc<WhaleActivityTracker>>,
     pub birdeye: Option<Arc<BirdeyeClient>>,
+    /// Rolling mark-price history to resume from (loaded by the caller via
+    /// `JsonStorage::load_mark_history`). Only pairs already present in the
+    /// loop's `pairs` list are seeded, mirroring the `if pair in
+    /// loop._mark_history` guard in loop.py's startup wiring.
+    pub mark_history_seed: Option<MarkHistory>,
 }
 
 impl Default for TradingLoopOptions {
@@ -190,6 +195,7 @@ impl Default for TradingLoopOptions {
             manual_actions: None,
             whale_tracker: None,
             birdeye: None,
+            mark_history_seed: None,
         }
     }
 }
@@ -212,7 +218,7 @@ impl<'s, E: Executor> TradingLoop<'s, E> {
         base_mints: HashMap<String, (String, u32)>,
         options: TradingLoopOptions,
     ) -> Self {
-        let mark_history = pairs
+        let mut mark_history: HashMap<String, VecDeque<(DateTime<Utc>, Money)>> = pairs
             .iter()
             .map(|p| {
                 (
@@ -221,6 +227,15 @@ impl<'s, E: Executor> TradingLoop<'s, E> {
                 )
             })
             .collect();
+        if let Some(seed) = &options.mark_history_seed {
+            for (pair, points) in seed {
+                if let Some(buf) = mark_history.get_mut(pair) {
+                    for point in points {
+                        push_bounded(buf, (point.t, point.p), options.chart_history_max);
+                    }
+                }
+            }
+        }
         Self {
             storage,
             portfolio,
@@ -724,43 +739,17 @@ impl<'s, E: Executor> TradingLoop<'s, E> {
     /// port (errors are already logged and swallowed inside them), so there
     /// is nothing left that can raise here.
     pub async fn run_fast_ticks(&mut self, interval_s: f64) {
-        let (birdeye, _hub) = match (self.birdeye.clone(), self.hub.clone()) {
-            (Some(b), Some(h)) => (b, h),
-            _ => {
-                tracing::info!(
-                    reason = "needs both Birdeye client and dashboard hub",
-                    "fast_tick_disabled"
-                );
-                return;
-            }
-        };
-        let mints: Vec<String> = self.base_mints.values().map(|(m, _)| m.clone()).collect();
-        let mint_to_pair: HashMap<String, String> = self
-            .base_mints
-            .iter()
-            .map(|(pair, (m, _))| (m.clone(), pair.clone()))
-            .collect();
+        if self.birdeye.is_none() || self.hub.is_none() {
+            tracing::info!(
+                reason = "needs both Birdeye client and dashboard hub",
+                "fast_tick_disabled"
+            );
+            return;
+        }
 
         let mut next_start = tokio::time::Instant::now();
         while !self.stop_signal.is_stopped() {
-            if !self.latest_scored.is_empty() {
-                let prices = birdeye.multi_price(&mints).await;
-                if !prices.is_empty() {
-                    let now = Utc::now();
-                    for (mint, price) in prices {
-                        let Some(pair) = mint_to_pair.get(&mint) else {
-                            continue;
-                        };
-                        let price = money_from_f64(price);
-                        self.latest_marks.insert(pair.clone(), price);
-                        let buf = self.mark_history.entry(pair.clone()).or_default();
-                        push_bounded(buf, (now, price), self.chart_history_max);
-                    }
-                    let marks_snapshot = self.latest_marks.clone();
-                    let scored_snapshot = self.latest_scored.clone();
-                    self.publish_snapshot(&marks_snapshot, &scored_snapshot, now);
-                }
-            }
+            self.run_one_fast_tick().await;
             next_start += Duration::from_secs_f64(interval_s);
             let now_inst = tokio::time::Instant::now();
             let sleep_dur = next_start.saturating_duration_since(now_inst);
@@ -770,5 +759,46 @@ impl<'s, E: Executor> TradingLoop<'s, E> {
                 next_start = tokio::time::Instant::now();
             }
         }
+    }
+
+    /// Runs a single fast-tick iteration (one Birdeye refresh + snapshot
+    /// republish), or does nothing if Birdeye/hub are not configured or no
+    /// decision cycle has produced cached scored signals yet. Factored out
+    /// of `run_fast_ticks` so a caller that needs to interleave fast ticks
+    /// with the main decision cycle on one `TradingLoop` can drive both from
+    /// a single task (e.g. via `tokio::select!`) rather than needing two
+    /// concurrent `&mut self` borrows, which `run_forever` and
+    /// `run_fast_ticks` do not allow across separate tasks.
+    pub async fn run_one_fast_tick(&mut self) {
+        let (birdeye, _hub) = match (self.birdeye.clone(), self.hub.clone()) {
+            (Some(b), Some(h)) => (b, h),
+            _ => return,
+        };
+        if self.latest_scored.is_empty() {
+            return;
+        }
+        let mints: Vec<String> = self.base_mints.values().map(|(m, _)| m.clone()).collect();
+        let mint_to_pair: HashMap<String, String> = self
+            .base_mints
+            .iter()
+            .map(|(pair, (m, _))| (m.clone(), pair.clone()))
+            .collect();
+        let prices = birdeye.multi_price(&mints).await;
+        if prices.is_empty() {
+            return;
+        }
+        let now = Utc::now();
+        for (mint, price) in prices {
+            let Some(pair) = mint_to_pair.get(&mint) else {
+                continue;
+            };
+            let price = money_from_f64(price);
+            self.latest_marks.insert(pair.clone(), price);
+            let buf = self.mark_history.entry(pair.clone()).or_default();
+            push_bounded(buf, (now, price), self.chart_history_max);
+        }
+        let marks_snapshot = self.latest_marks.clone();
+        let scored_snapshot = self.latest_scored.clone();
+        self.publish_snapshot(&marks_snapshot, &scored_snapshot, now);
     }
 }
