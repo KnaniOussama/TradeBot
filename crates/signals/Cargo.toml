@@ -7,12 +7,15 @@ license.workspace = true
 [dependencies]
 tradebot-common = { path = "../common" }
 tradebot-storage = { path = "../storage" }
+tradebot-data = { path = "../data" }
 async-trait = "0.1"
 chrono = { workspace = true }
 serde_json = { workspace = true }
 rust_decimal = { workspace = true }
 thiserror = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 serde = { workspace = true }
 tokio = { workspace = true }
+wiremock = "0.6"

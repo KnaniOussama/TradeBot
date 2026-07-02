@@ -1774,8 +1774,11 @@ dependencies = [
  "serde_json",
  "thiserror 1.0.69",
  "tokio",
+ "tracing",
  "tradebot-common",
+ "tradebot-data",
  "tradebot-storage",
+ "wiremock",
 ]
 
 [[package]]
