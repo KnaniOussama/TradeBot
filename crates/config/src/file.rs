@@ -1,10 +1,16 @@
 use crate::error::ConfigError;
-use crate::models::{AppConfig, DashboardConfig, RiskConfig, WatchlistConfig, WeightsConfig, WhalesConfig};
+use crate::models::{
+    AppConfig, DashboardConfig, RiskConfig, WatchlistConfig, WeightsConfig, WhalesConfig,
+};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-fn default_config_version() -> u32 { 1 }
-fn default_data_dir() -> String { "data".into() }
+fn default_config_version() -> u32 {
+    1
+}
+fn default_data_dir() -> String {
+    "data".into()
+}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TradeBotConfig {
@@ -37,10 +43,15 @@ pub fn load_config(path: &Path) -> Result<TradeBotConfig, ConfigError> {
     if !path.exists() {
         return Err(ConfigError::NotFound(path.to_path_buf()));
     }
-    let text = std::fs::read_to_string(path)
-        .map_err(|source| ConfigError::Io { path: path.to_path_buf(), source })?;
-    let cfg: TradeBotConfig = serde_json::from_str(&text)
-        .map_err(|source| ConfigError::InvalidJson { path: path.to_path_buf(), source })?;
+    let text = std::fs::read_to_string(path).map_err(|source| ConfigError::Io {
+        path: path.to_path_buf(),
+        source,
+    })?;
+    let cfg: TradeBotConfig =
+        serde_json::from_str(&text).map_err(|source| ConfigError::InvalidJson {
+            path: path.to_path_buf(),
+            source,
+        })?;
     cfg.validate()?;
     Ok(cfg)
 }
@@ -48,12 +59,18 @@ pub fn load_config(path: &Path) -> Result<TradeBotConfig, ConfigError> {
 /// Write a config as pretty JSON. Mirrors `tradebot/config/file.py::save_config`.
 pub fn save_config(path: &Path, config: &TradeBotConfig) -> Result<(), ConfigError> {
     if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent)
-            .map_err(|source| ConfigError::Io { path: parent.to_path_buf(), source })?;
+        std::fs::create_dir_all(parent).map_err(|source| ConfigError::Io {
+            path: parent.to_path_buf(),
+            source,
+        })?;
     }
-    let json = serde_json::to_string_pretty(config)
-        .map_err(|source| ConfigError::InvalidJson { path: path.to_path_buf(), source })?;
-    std::fs::write(path, json)
-        .map_err(|source| ConfigError::Io { path: path.to_path_buf(), source })?;
+    let json = serde_json::to_string_pretty(config).map_err(|source| ConfigError::InvalidJson {
+        path: path.to_path_buf(),
+        source,
+    })?;
+    std::fs::write(path, json).map_err(|source| ConfigError::Io {
+        path: path.to_path_buf(),
+        source,
+    })?;
     Ok(())
 }

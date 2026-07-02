@@ -22,8 +22,14 @@ fn save_and_load_roundtrip() {
     let path = tmp("roundtrip.json");
     save_config(&path, &cfg).unwrap();
     let loaded = load_config(&path).unwrap();
-    assert_eq!(loaded.app.starting_capital_usd, cfg.app.starting_capital_usd);
-    assert_eq!(loaded.risk.max_concurrent_positions, cfg.risk.max_concurrent_positions);
+    assert_eq!(
+        loaded.app.starting_capital_usd,
+        cfg.app.starting_capital_usd
+    );
+    assert_eq!(
+        loaded.risk.max_concurrent_positions,
+        cfg.risk.max_concurrent_positions
+    );
     assert_eq!(loaded, cfg);
     std::fs::remove_file(&path).ok();
 }
@@ -49,7 +55,7 @@ fn load_schema_violation_errors() {
     let path = tmp("badweights.json");
     let mut cfg = default_config();
     cfg.weights.signals.insert("ta".into(), 0.9); // now sums > 1
-    // write raw so load re-validates
+                                                  // write raw so load re-validates
     save_config(&path, &cfg).unwrap();
     let err = load_config(&path).unwrap_err();
     assert!(matches!(err, ConfigError::Validation(_)));

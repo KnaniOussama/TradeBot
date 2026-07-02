@@ -11,5 +11,8 @@ fn rust_default_matches_python_default() {
     let rust_str = serde_json::to_string(&default_config()).unwrap();
     let rust: serde_json::Value = serde_json::from_str(&rust_str).unwrap();
 
-    assert_eq!(rust, python, "Rust default_config diverged from Python default_config");
+    assert_eq!(
+        rust, python,
+        "Rust default_config diverged from Python default_config"
+    );
 }
