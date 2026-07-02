@@ -164,6 +164,97 @@ impl RiskConfig {
     }
 }
 
+use std::collections::BTreeMap;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct WeightsConfig {
+    pub timeframes: BTreeMap<String, f64>,
+    pub signals: BTreeMap<String, f64>,
+}
+
+impl WeightsConfig {
+    pub fn validate(&self) -> Result<(), ConfigError> {
+        for (name, map) in [("timeframes", &self.timeframes), ("signals", &self.signals)] {
+            let total: f64 = map.values().sum();
+            if (total - 1.0).abs() > 1e-6 {
+                return Err(invalid(format!("{name} weights must sum to 1.0, got {total}")));
+            }
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AppConfig {
+    pub rpc_url: String,
+    pub helius_api_key_env: String,
+    #[serde(default = "app_log_level")] pub log_level: String,
+    #[serde(default = "app_starting_capital")] pub starting_capital_usd: f64,
+    #[serde(default = "app_jupiter_base_url")] pub jupiter_base_url: String,
+    #[serde(default = "app_price_poll")] pub price_poll_interval_s: f64,
+    #[serde(default = "app_decision_interval")] pub decision_interval_s: f64,
+    #[serde(default = "app_jup_rps")] pub jupiter_rate_limit_rps: f64,
+    #[serde(default = "app_jup_burst")] pub jupiter_rate_limit_burst: u32,
+    #[serde(default = "app_jup_retries")] pub jupiter_max_429_retries: u32,
+    #[serde(default = "app_entry_threshold")] pub entry_threshold: f64,
+    #[serde(default = "app_exit_flip")] pub exit_flip_threshold: f64,
+    #[serde(default = "app_helius_base_url")] pub helius_base_url: String,
+    #[serde(default)] pub onchain_dex_addresses: Vec<String>,
+    #[serde(default = "app_onchain_whale_min")] pub onchain_whale_min: f64,
+    #[serde(default)] pub birdeye_api_key_env: String,
+    #[serde(default = "app_birdeye_base_url")] pub birdeye_base_url: String,
+    #[serde(default = "app_birdeye_rps")] pub birdeye_rate_limit_rps: f64,
+    #[serde(default = "app_birdeye_burst")] pub birdeye_rate_limit_burst: u32,
+    #[serde(default = "app_birdeye_retries")] pub birdeye_max_429_retries: u32,
+    #[serde(default)] pub fast_tick_interval_s: f64,
+    #[serde(default = "app_sim_fee_bps")] pub simulated_fee_bps: u32,
+    #[serde(default = "ri_true")] pub dashboard_enabled: bool,
+    #[serde(default = "app_dash_host")] pub dashboard_host: String,
+    #[serde(default = "app_dash_port")] pub dashboard_port: u16,
+    #[serde(default = "app_keystore_path")] pub keystore_path: String,
+    #[serde(default)] pub priority_fee_microlamports: u64,
+    #[serde(default = "app_confirmation_timeout")] pub confirmation_timeout_s: f64,
+    #[serde(default = "app_starting_sol")] pub starting_sol_balance: f64,
+    #[serde(default = "app_sim_confirm_latency")] pub simulated_confirm_latency_s: f64,
+}
+
+fn app_log_level() -> String { "INFO".into() }
+fn app_starting_capital() -> f64 { 50.0 }
+fn app_jupiter_base_url() -> String { "https://lite-api.jup.ag/swap/v1".into() }
+fn app_price_poll() -> f64 { 5.0 }
+fn app_decision_interval() -> f64 { 10.0 }
+fn app_jup_rps() -> f64 { 0.9 }
+fn app_jup_burst() -> u32 { 5 }
+fn app_jup_retries() -> u32 { 3 }
+fn app_entry_threshold() -> f64 { 0.6 }
+fn app_exit_flip() -> f64 { -0.3 }
+fn app_helius_base_url() -> String { "https://api.helius.xyz".into() }
+fn app_onchain_whale_min() -> f64 { 1000.0 }
+fn app_birdeye_base_url() -> String { "https://public-api.birdeye.so".into() }
+fn app_birdeye_rps() -> f64 { 0.9 }
+fn app_birdeye_burst() -> u32 { 2 }
+fn app_birdeye_retries() -> u32 { 2 }
+fn app_sim_fee_bps() -> u32 { 10 }
+fn app_dash_host() -> String { "127.0.0.1".into() }
+fn app_dash_port() -> u16 { 8765 }
+fn app_keystore_path() -> String { "keystore/bot.keystore.json".into() }
+fn app_confirmation_timeout() -> f64 { 30.0 }
+fn app_starting_sol() -> f64 { 0.05 }
+fn app_sim_confirm_latency() -> f64 { 1.0 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DashboardConfig {
+    #[serde(default = "ri_true")] pub enabled: bool,
+    #[serde(default = "app_dash_host")] pub host: String,
+    #[serde(default = "app_dash_port")] pub port: u16,
+}
+
+impl Default for DashboardConfig {
+    fn default() -> Self {
+        Self { enabled: true, host: app_dash_host(), port: app_dash_port() }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -238,5 +329,40 @@ mod tests {
             ],
         };
         assert!(w.validate().is_err());
+    }
+
+    #[test]
+    fn weights_reject_unnormalized() {
+        let w = WeightsConfig {
+            timeframes: BTreeMap::from([("5s".into(), 0.5), ("1m".into(), 0.5), ("15m".into(), 0.5), ("1h".into(), 0.5)]),
+            signals: BTreeMap::from([("ta".into(), 1.0)]),
+        };
+        assert!(w.validate().is_err());
+    }
+
+    #[test]
+    fn weights_accept_normalized() {
+        let w = WeightsConfig {
+            timeframes: BTreeMap::from([("5s".into(), 0.1), ("1m".into(), 0.2), ("15m".into(), 0.3), ("1h".into(), 0.4)]),
+            signals: BTreeMap::from([("ta".into(), 0.4), ("microstructure".into(), 0.3), ("onchain".into(), 0.3)]),
+        };
+        assert!(w.validate().is_ok());
+    }
+
+    #[test]
+    fn app_config_applies_defaults_from_minimal_json() {
+        let json = r#"{"rpc_url":"https://example.com/rpc","helius_api_key_env":"HELIUS_API_KEY"}"#;
+        let a: AppConfig = serde_json::from_str(json).unwrap();
+        assert_eq!(a.starting_capital_usd, 50.0);
+        assert_eq!(a.dashboard_port, 8765);
+        assert_eq!(a.exit_flip_threshold, -0.3);
+    }
+
+    #[test]
+    fn app_config_ignores_unknown_fields() {
+        // Mirrors pydantic's extra="ignore" — old configs with removed fields (e.g. db_path) still load.
+        let json = r#"{"rpc_url":"x","helius_api_key_env":"y","db_path":"tradebot.db"}"#;
+        let a: AppConfig = serde_json::from_str(json).unwrap();
+        assert_eq!(a.rpc_url, "x");
     }
 }
