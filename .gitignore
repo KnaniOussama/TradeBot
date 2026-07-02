@@ -1,0 +1,43 @@
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+*.egg-info/
+dist/
+build/
+
+# --- Caches / tooling ---
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+coverage.xml
+pytest_output.txt
+
+# --- Databases ---
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# --- Runtime / secrets (NEVER commit) ---
+logs/
+*.log
+/data/
+/data/local/
+keystore/
+tradebot.config.json
+
+# --- Editors / OS ---
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Local tooling config (keep out of the public repo) ---
+.claude/

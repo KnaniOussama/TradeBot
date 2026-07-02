@@ -1,0 +1,98 @@
+[project]
+name = "tradebot"
+version = "0.1.0"
+description = "Solana DEX trading bot"
+requires-python = ">=3.12"
+dependencies = [
+    "uvloop>=0.19; sys_platform != 'win32'",
+    "winloop>=0.1.7; sys_platform == 'win32'",
+    "httpx>=0.27",
+    "pydantic>=2.7",
+    "PyYAML>=6.0",
+    "structlog>=24.1",
+    "solana>=0.34",
+    "solders>=0.21",
+    "click>=8.1",
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "pandas-ta-classic>=0.4",
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.30",
+    "cryptography>=43",
+    "argon2-cffi>=23",
+    "base58>=2.1",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2",
+    "pytest-asyncio>=0.23",
+    "pytest-httpx>=0.30",
+    "freezegun>=1.5",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "httpx-ws>=0.6",
+]
+
+[project.scripts]
+tradebot = "tradebot.main:cli"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tradebot"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "ASYNC"]
+
+[tool.ruff.lint.per-file-ignores]
+# Reading small fixture files synchronously in async tests is fine; the
+# trio/anyio-path guidance ASYNC240 pushes is overkill for test setup.
+"tests/**" = ["ASYNC240"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+
+[[tool.mypy.overrides]]
+module = "yaml"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "structlog"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "solana"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "solders"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "winloop"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "uvloop"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["pandas", "pandas.*", "pandas_ta_classic", "pandas_ta_classic.*", "numpy", "numpy.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["argon2", "argon2.*", "base58", "base58.*", "cryptography", "cryptography.*"]
+ignore_missing_imports = true
