@@ -43,6 +43,14 @@ impl SignalAggregator {
         }
     }
 
+    /// Read access to the per-timeframe weight map, needed by the trading
+    /// loop to pick the "regime timeframe" (the highest-weight timeframe)
+    /// for per-pair regime classification. Mirrors direct `self._tf_weights`
+    /// access in loop.py.
+    pub fn timeframe_weights(&self) -> &HashMap<String, f64> {
+        &self.timeframe_weights
+    }
+
     /// Scores `ctx` with every configured signal and returns the combined
     /// result. Mirrors `SignalAggregator.aggregate` in aggregator.py.
     pub async fn aggregate(&self, ctx: &MarketContext) -> AggregatedScore {
