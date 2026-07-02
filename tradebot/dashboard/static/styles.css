@@ -1,5 +1,5 @@
 /* ============================================================
-   TradeBot Terminal — Bloomberg-modernist dark theme
+   TradeBot Terminal, Bloomberg-modernist dark theme
    IBM Plex Sans + Plex Mono · hairline borders · state colors
    ============================================================ */
 
@@ -261,7 +261,7 @@ body {
     .stat-value { font-size: 18px; }
 }
 
-/* SOL gas stat — slightly dimmer to read as "operational metric" not "balance" */
+/* SOL gas stat, slightly dimmer to read as "operational metric" not "balance" */
 #sol-balance { color: var(--text); }
 #sol-sub.warn { color: var(--warn); }
 #sol-sub.empty { color: var(--neg); }
@@ -743,7 +743,7 @@ textarea#config-json:focus {
 .bt-metric-value.neg { color: var(--neg); }
 
 /* ============================================================
-   Pause banner — barber-pole alert beneath topbar
+   Pause banner, barber-pole alert beneath topbar
    ============================================================ */
 
 .pause-banner {
@@ -837,7 +837,7 @@ textarea#config-json:focus {
 }
 
 /* ============================================================
-   Controls strip — pause toggles
+   Controls strip, pause toggles
    ============================================================ */
 
 .controls {
@@ -932,7 +932,7 @@ textarea#config-json:focus {
     border-left-color: rgba(245, 177, 58, 0.45);
 }
 
-/* "All" toggle — slightly heavier weight */
+/* "All" toggle, slightly heavier weight */
 .pause-toggle-all {
     border-style: dashed;
 }
@@ -949,7 +949,7 @@ textarea#config-json:focus {
 }
 
 /* ============================================================
-   Position lineage — expandable rows
+   Position lineage, expandable rows
    ============================================================ */
 
 .table-positions th.col-chev,
@@ -1088,7 +1088,7 @@ textarea#config-json:focus {
 .lineage-realized.dim { color: var(--text-faint); }
 
 /* ============================================================
-   Trade & lineage badges — shared vocabulary
+   Trade & lineage badges, shared vocabulary
    ============================================================ */
 
 .tag-badge {
@@ -1362,7 +1362,7 @@ textarea#config-json:focus {
 .sell-modal-actions { display: flex; gap: 10px; }
 
 /* ============================================================
-   Settings — control desk
+   Settings, control desk
    ============================================================ */
 
 .settings-pane[hidden] { display: none; }
