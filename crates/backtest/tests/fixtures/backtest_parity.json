@@ -1,0 +1,79 @@
+{
+  "metrics_golden": {
+    "bar_seconds": 60,
+    "equity_values": [
+      100.0,
+      102.5,
+      101.0,
+      105.25,
+      103.75,
+      108.0,
+      106.5,
+      99.0,
+      101.25,
+      97.5,
+      100.0,
+      104.0,
+      110.5,
+      108.25,
+      112.0,
+      109.75,
+      115.0,
+      113.5,
+      118.25,
+      121.0
+    ],
+    "result": {
+      "final_equity": 121.0,
+      "max_drawdown_pct": 0.09722222222222222,
+      "n_losses": 1,
+      "n_wins": 2,
+      "sharpe": 225.83534353635466,
+      "total_return_pct": 0.21
+    },
+    "starting_cash": 100.0
+  },
+  "runner_parity": {
+    "bars_processed": 150,
+    "entry_threshold": 0.6,
+    "final_equity": 100.0,
+    "max_drawdown_pct": 0.0,
+    "n_bars": 200,
+    "n_losses": 0,
+    "n_trades": 0,
+    "n_wins": 0,
+    "realized_pnl": 0.0,
+    "sharpe": 0.0,
+    "total_return_pct": 0.0,
+    "trades": []
+  },
+  "runner_parity_active": {
+    "bars_processed": 150,
+    "entry_threshold": 0.2,
+    "final_equity": 101.31228793120243,
+    "max_drawdown_pct": 0.0010499250374813585,
+    "n_bars": 200,
+    "n_losses": 0,
+    "n_trades": 2,
+    "n_wins": 1,
+    "realized_pnl": 0.2604186649158429,
+    "sharpe": 297.8106744263706,
+    "total_return_pct": 0.013122879312024337,
+    "trades": [
+      {
+        "base_amount": 0.19426607478481966,
+        "fee_quote": 0.09,
+        "price": 154.4273751,
+        "quote_amount": 30.0,
+        "side": "buy"
+      },
+      {
+        "base_amount": 0.09713303739240983,
+        "fee_quote": 0.04591901303384908,
+        "price": 157.58117000000001,
+        "quote_amount": 15.306337677949692,
+        "side": "sell"
+      }
+    ]
+  }
+}

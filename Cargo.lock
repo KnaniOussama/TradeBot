@@ -2544,6 +2544,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "tradebot-backtest"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "indexmap",
+ "rust_decimal",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+ "tradebot-common",
+ "tradebot-config",
+ "tradebot-core",
+ "tradebot-execution",
+ "tradebot-signals",
+ "tradebot-storage",
+]
+
+[[package]]
 name = "tradebot-common"
 version = "0.1.0"
 dependencies = [

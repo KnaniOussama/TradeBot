@@ -1,0 +1,22 @@
+[package]
+name = "tradebot-backtest"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+tradebot-common = { path = "../common" }
+tradebot-config = { path = "../config" }
+tradebot-core = { path = "../core" }
+tradebot-execution = { path = "../execution" }
+tradebot-signals = { path = "../signals" }
+tradebot-storage = { path = "../storage" }
+chrono = { workspace = true }
+indexmap = { workspace = true }
+rust_decimal = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+tokio = { workspace = true }
+async-trait = "0.1"
