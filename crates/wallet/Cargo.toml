@@ -1,0 +1,27 @@
+[package]
+name = "tradebot-wallet"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+tradebot-common = { path = "../common" }
+tradebot-core = { path = "../core" }
+tradebot-data = { path = "../data" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+rust_decimal = { workspace = true }
+argon2 = "0.5"
+aes-gcm = "0.10"
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+bs58 = "0.5"
+base64 = "0.22"
+rand = "0.8"
+
+[dev-dependencies]
+tradebot-storage = { path = "../storage" }
+tokio = { workspace = true }
+tempfile = "3"
+wiremock = "0.6"
