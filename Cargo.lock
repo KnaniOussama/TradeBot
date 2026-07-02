@@ -2379,6 +2379,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "tradebot-engine"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "rust_decimal",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+ "tradebot-common",
+ "tradebot-config",
+ "tradebot-core",
+ "tradebot-data",
+ "tradebot-execution",
+ "tradebot-signals",
+ "tradebot-storage",
+ "wiremock",
+]
+
+[[package]]
 name = "tradebot-execution"
 version = "0.1.0"
 dependencies = [
