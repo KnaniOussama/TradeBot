@@ -8,7 +8,7 @@ use indexmap::IndexMap;
 /// The scaffolded default config. Mirrors `tradebot/config/defaults.py::default_config`.
 pub fn default_config() -> TradeBotConfig {
     let mut app = minimal_app();
-    app.jupiter_base_url = "https://quote-api.jup.ag/v6".into();
+    app.jupiter_base_url = "https://lite-api.jup.ag/swap/v1".into();
 
     TradeBotConfig {
         config_version: 1,

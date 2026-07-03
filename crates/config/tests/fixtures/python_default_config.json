@@ -6,7 +6,7 @@
     "helius_api_key_env": "HELIUS_API_KEY",
     "log_level": "INFO",
     "starting_capital_usd": 50.0,
-    "jupiter_base_url": "https://quote-api.jup.ag/v6",
+    "jupiter_base_url": "https://lite-api.jup.ag/swap/v1",
     "price_poll_interval_s": 5.0,
     "decision_interval_s": 10.0,
     "jupiter_rate_limit_rps": 0.9,
