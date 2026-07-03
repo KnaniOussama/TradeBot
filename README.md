@@ -108,21 +108,32 @@ You can change all of this in the **Settings** tab of the dashboard.
 
 ## Install
 
-You'll need **Python 3.12+**. Then in PowerShell from the project folder:
+You'll need **Rust (stable)**. Install it via [rustup](https://rustup.rs) if you don't
+have it already. Then from the project folder:
 
 ```powershell
-python -m venv .venv
-.venv\Scripts\activate
-pip install -e .[dev]
+cargo build --release
+```
+
+The binary lands at `target\release\tradebot.exe`. To get `tradebot` on your PATH:
+
+```powershell
+cargo install --path crates\tradebot
+```
+
+Or skip installing and just run it through cargo:
+
+```powershell
+cargo run -p tradebot -- start
 ```
 
 Sanity check:
 
 ```powershell
-pytest
+cargo test --all
 ```
 
-You should see `286 passed`.
+It should pass.
 
 ---
 
@@ -357,9 +368,9 @@ Treat this as a learning project / experiment. Run it in demo mode for at least
 a few days before risking anything real.
 
 **Q: What if I want to add a new signal?**
-Drop a new module in `tradebot/signals/` that exposes a `score(ctx)` async method
-returning a `SignalScore` with a value in [-1, +1]. Add it to the aggregator wiring
-in `tradebot/main.py`. Add its weight to `weights.signals` in the config.
+Implement the `Signal` trait in `crates/signals` with a `score(ctx)` method
+returning a `SignalScore` with a value in [-1, +1]. Wire it into the aggregator in
+`crates/tradebot/src/wiring.rs`. Add its weight to `weights.signals` in the config.
 
 **Q: I get `getaddrinfo failed` errors, what do I do?**
 DNS or network issue. Try `nslookup lite-api.jup.ag` from the same shell. If that
@@ -375,17 +386,22 @@ if you want more trade activity, but expect more losers.
 
 ## Project layout (for the curious)
 
+It's a Cargo workspace, one crate per concern:
+
 ```
-tradebot/
-├── config/        # JSON config schema + loader
-├── core/          # portfolio, aggregator, decision engine, risk manager, main loop
-├── dashboard/     # FastAPI server + WebSocket + static frontend
-├── data/          # Jupiter quote client, Solana RPC, OHLCV aggregator
-├── execution/     # DemoExecutor (paper trades), RealExecutor (on-chain swaps)
-├── signals/       # TA + microstructure + on-chain signal modules
+crates/
+├── common/        # shared types, money/decimal helpers, logging setup
+├── config/        # JSON config schema + loader (tradebot.config.json)
 ├── storage/       # JSON file repositories (trades, portfolio, equity, ohlcv)
+├── data/          # Jupiter quote client, Solana RPC, Birdeye/Helius clients, OHLCV aggregator
+├── signals/       # TA + microstructure + on-chain signal modules (the Signal trait)
+├── core/          # portfolio, aggregator, decision engine, risk manager
+├── execution/     # DemoExecutor (paper trades), RealExecutor (on-chain swaps)
 ├── wallet/        # Encrypted keypair (Argon2id + AES-256-GCM)
-└── main.py        # CLI entry point: tradebot init / start / wallet
+├── engine/        # trading loop, dashboard snapshot hub
+├── dashboard/     # Axum server + WebSocket + static frontend
+├── backtest/      # data loader, executor, metrics for the Backtest tab
+└── tradebot/      # CLI entry point (binary crate): tradebot init / start / wallet
 ```
 
 That's it. Have fun. **Don't trade what you can't afford to lose.**

@@ -9,19 +9,21 @@ for autonomous Solana DEX trading, and contributions of all sizes are welcome.
 
 ## Getting set up
 
-You'll need **Python 3.12+**.
+You'll need **Rust (stable)**. Install it via [rustup](https://rustup.rs) if you
+don't have it already; the repo pins the toolchain via `rust-toolchain.toml`.
 
 ```bash
-python -m venv .venv
-# Windows:  .venv\Scripts\activate
-# Unix:     source .venv/bin/activate
-pip install -e .[dev]
+cargo build --release
 ```
+
+The binary lands at `target/release/tradebot`. Either `cargo install --path
+crates/tradebot` to get `tradebot` on your PATH, or run it directly with `cargo
+run -p tradebot -- <args>`.
 
 Run the test suite to confirm everything works:
 
 ```bash
-pytest
+cargo test --all
 ```
 
 ## Before you open a pull request
@@ -29,9 +31,9 @@ pytest
 Please make sure all of the following pass locally (CI runs the same checks):
 
 ```bash
-ruff check .        # lint
-mypy tradebot       # type check (strict mode)
-pytest              # tests
+cargo fmt --all --check                        # format
+cargo clippy --all-targets -- -D warnings      # lint
+cargo test --all                               # tests
 ```
 
 New behavior needs a test. Bug fixes should come with a regression test that fails
@@ -39,14 +41,15 @@ before the fix and passes after.
 
 ## Coding conventions
 
-- **Line length:** 100 (enforced by ruff).
-- **Typing:** the codebase is `mypy --strict`. Keep it that way: no new `Any`
-  leaks or missing annotations.
-- **Async:** the trading loop and all I/O clients are `asyncio`. Don't block the
-  event loop; use the existing rate-limited clients for network calls.
-- **Signals:** a new signal is a module in `tradebot/signals/` exposing an async
-  `score(ctx) -> SignalScore` with a value in `[-1, +1]`. Wire it into the
-  aggregator in `tradebot/main.py` and add its weight to `weights.signals`.
+- **Line length:** rustfmt default. Don't fight the formatter, just run `cargo fmt`.
+- **Typing:** Rust's type system does the work here. Avoid `unwrap()`/`expect()`
+  outside of tests and startup code; propagate errors with `Result` instead.
+- **Async:** the trading loop and all I/O clients run on `tokio`. Don't block the
+  async runtime; use the existing rate-limited clients for network calls.
+- **Signals:** a new signal implements the `Signal` trait in `crates/signals`
+  with a `score(ctx) -> SignalScore` method returning a value in `[-1, +1]`. Wire
+  it into the aggregator in `crates/tradebot/src/wiring.rs` and add its weight to
+  `weights.signals`.
 - Match the style of the surrounding code: comment density, naming, structure.
 
 ## Security

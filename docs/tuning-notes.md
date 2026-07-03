@@ -44,7 +44,7 @@ Settings tab).
 ## Known limitations
 
 - The backtest runner does **not** compute regimes per-bar (see
-  `tests/backtest/test_regime_backtest.py`). Regime-filtered results in a backtest
+  `crates/backtest/tests/regime_backtest.rs`). Regime-filtered results in a backtest
   will not match live behaviour until per-bar regime classification is wired in.
 - Kelly's `round_trip_returns` treats partial sells as full closes, an acceptable
   approximation, but it can overstate returns if the take-profit ladder fires often.
