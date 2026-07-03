@@ -34,6 +34,15 @@ impl std::fmt::Debug for BotKeypair {
     }
 }
 
+// Wipe the secret seed from memory when the keypair is dropped so it does not
+// linger in freed heap.
+impl Drop for BotKeypair {
+    fn drop(&mut self) {
+        use zeroize::Zeroize;
+        self.secret_bytes.zeroize();
+    }
+}
+
 impl BotKeypair {
     /// Builds the ed25519 signing key from `secret_bytes`. Accepts either a
     /// 32-byte seed or a 64-byte `seed || pubkey` array; both encode the

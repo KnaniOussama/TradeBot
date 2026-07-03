@@ -2977,6 +2977,7 @@ dependencies = [
  "tradebot-data",
  "tradebot-storage",
  "wiremock",
+ "zeroize",
 ]
 
 [[package]]

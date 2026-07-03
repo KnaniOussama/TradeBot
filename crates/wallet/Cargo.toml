@@ -16,6 +16,7 @@ rust_decimal = { workspace = true }
 argon2 = "0.5"
 aes-gcm = "0.10"
 ed25519-dalek = { version = "2", features = ["rand_core"] }
+zeroize = "1"
 bs58 = "0.5"
 base64 = "0.22"
 rand = "0.8"

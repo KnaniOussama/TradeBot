@@ -34,7 +34,16 @@ pub async fn post_sell(
     let payload: SellPayload = if body.is_empty() {
         SellPayload::default()
     } else {
-        serde_json::from_slice(&body).unwrap_or_default()
+        match serde_json::from_slice(&body) {
+            Ok(p) => p,
+            Err(_) => {
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(json!({ "error": "invalid JSON body" })),
+                )
+                    .into_response();
+            }
+        }
     };
 
     if let Some(snap) = state.hub.latest() {
