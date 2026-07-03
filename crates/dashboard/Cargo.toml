@@ -1,0 +1,34 @@
+[package]
+name = "tradebot-dashboard"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+tradebot-common = { path = "../common" }
+tradebot-config = { path = "../config" }
+tradebot-core = { path = "../core" }
+tradebot-engine = { path = "../engine" }
+tradebot-backtest = { path = "../backtest" }
+tradebot-signals = { path = "../signals" }
+tradebot-storage = { path = "../storage" }
+axum = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+rust_decimal = { workspace = true }
+indexmap = { workspace = true }
+tracing = { workspace = true }
+rand = "0.8"
+rust-embed = { version = "8", features = ["mime-guess"] }
+mime_guess = "2"
+futures-util = "0.3"
+
+[dev-dependencies]
+tower = { workspace = true }
+http-body-util = "0.1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "multipart"] }
+tokio-tungstenite = "0.24"
+futures-util = "0.3"
+tempfile = "3"

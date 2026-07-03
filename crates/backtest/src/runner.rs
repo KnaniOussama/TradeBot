@@ -15,6 +15,7 @@ use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use indexmap::IndexMap;
 use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
 use tradebot_common::{Mode, Money};
 use tradebot_config::models::RiskConfig;
 use tradebot_core::{
@@ -29,7 +30,7 @@ use crate::metrics::{compute_metrics, TradeOutcome};
 
 /// One fill recorded during the replay. Mirrors `BacktestTrade` in
 /// runner.py.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct BacktestTrade {
     pub timestamp: String,
     pub side: Side,
@@ -41,26 +42,62 @@ pub struct BacktestTrade {
 
 /// One equity-curve sample. Mirrors the `{"t": ..., "e": ...}` dict runner.py
 /// builds for `BacktestResult.equity_curve`.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct EquityPoint {
     pub t: String,
     pub e: Money,
 }
 
+fn default_timeframe() -> String {
+    "1m".to_string()
+}
+fn default_starting_cash() -> Money {
+    Decimal::new(500, 1) // 50.0
+}
+fn default_fee_bps() -> u32 {
+    30
+}
+fn default_slippage_bps() -> u32 {
+    5
+}
+fn default_warmup_bars() -> usize {
+    50
+}
+fn default_entry_threshold() -> f64 {
+    0.6
+}
+fn default_exit_flip_threshold() -> f64 {
+    -0.3
+}
+fn default_bar_seconds() -> u32 {
+    60
+}
+
 /// Backtest run parameters. Mirrors `BacktestParams` in runner.py; `pair`
 /// has no default (it is the one required dataclass field), so it is taken
 /// by `BacktestParams::new` and the rest default to the Python dataclass
-/// defaults.
-#[derive(Debug, Clone)]
+/// defaults. Every other field has a `serde(default = ...)` matching the
+/// same Python default, so the dashboard's `/api/backtest/run` handler can
+/// deserialize a partial JSON params object the same way
+/// `BacktestParams(**params_dict)` accepts a partial dict in Python.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BacktestParams {
     pub pair: String,
+    #[serde(default = "default_timeframe")]
     pub timeframe: String,
+    #[serde(default = "default_starting_cash")]
     pub starting_cash: Money,
+    #[serde(default = "default_fee_bps")]
     pub fee_bps: u32,
+    #[serde(default = "default_slippage_bps")]
     pub slippage_bps: u32,
+    #[serde(default = "default_warmup_bars")]
     pub warmup_bars: usize,
+    #[serde(default = "default_entry_threshold")]
     pub entry_threshold: f64,
+    #[serde(default = "default_exit_flip_threshold")]
     pub exit_flip_threshold: f64,
+    #[serde(default = "default_bar_seconds")]
     pub bar_seconds: u32,
 }
 
@@ -68,20 +105,20 @@ impl BacktestParams {
     pub fn new(pair: impl Into<String>) -> Self {
         Self {
             pair: pair.into(),
-            timeframe: "1m".to_string(),
-            starting_cash: Decimal::new(500, 1), // 50.0
-            fee_bps: 30,
-            slippage_bps: 5,
-            warmup_bars: 50,
-            entry_threshold: 0.6,
-            exit_flip_threshold: -0.3,
-            bar_seconds: 60,
+            timeframe: default_timeframe(),
+            starting_cash: default_starting_cash(),
+            fee_bps: default_fee_bps(),
+            slippage_bps: default_slippage_bps(),
+            warmup_bars: default_warmup_bars(),
+            entry_threshold: default_entry_threshold(),
+            exit_flip_threshold: default_exit_flip_threshold(),
+            bar_seconds: default_bar_seconds(),
         }
     }
 }
 
 /// Full backtest output. Mirrors `BacktestResult` in runner.py.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct BacktestResult {
     pub id: String,
     pub pair: String,

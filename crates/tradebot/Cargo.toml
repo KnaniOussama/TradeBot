@@ -18,6 +18,7 @@ tradebot-data = { path = "../data" }
 tradebot-execution = { path = "../execution" }
 tradebot-wallet = { path = "../wallet" }
 tradebot-engine = { path = "../engine" }
+tradebot-dashboard = { path = "../dashboard" }
 clap = { version = "4", features = ["derive"] }
 tokio = { workspace = true }
 tracing = { workspace = true }

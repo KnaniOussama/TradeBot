@@ -5,7 +5,7 @@
 
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use rust_decimal::Decimal;
@@ -14,6 +14,9 @@ use tradebot_common::{Mode, Money};
 use tradebot_config::TradeBotConfig;
 use tradebot_core::{
     DecisionEngine, ManualActionQueue, Portfolio, RiskManager, RiskState, SignalAggregator,
+};
+use tradebot_dashboard::{
+    spawn as spawn_dashboard, AppState, BacktestStore, ConfigBroker, DashboardHandle,
 };
 use tradebot_data::{
     BirdeyeClient, HeliusClient, JupiterClient, SolanaRpcClient, TokenBucketLimiter,
@@ -89,6 +92,7 @@ fn resolve_key(value: &str) -> Option<String> {
 pub async fn run(
     mode: Mode,
     cfg: TradeBotConfig,
+    config_path: PathBuf,
     bot_keypair: Option<BotKeypair>,
     max_cycles: Option<u64>,
 ) -> Result<(), BoxError> {
@@ -176,6 +180,7 @@ pub async fn run(
         );
         run_loop(
             &cfg,
+            config_path,
             mode,
             &storage,
             portfolio,
@@ -202,6 +207,7 @@ pub async fn run(
         );
         run_loop(
             &cfg,
+            config_path,
             mode,
             &storage,
             portfolio,
@@ -223,6 +229,7 @@ pub async fn run(
 #[allow(clippy::too_many_arguments)]
 async fn run_loop<E: Executor>(
     cfg: &TradeBotConfig,
+    config_path: PathBuf,
     mode: Mode,
     storage: &JsonStorage,
     portfolio: Portfolio,
@@ -449,6 +456,12 @@ async fn run_loop<E: Executor>(
         None
     };
 
+    // Share the hub and manual-action queue with the dashboard server before
+    // they are moved into the trading loop below (both are Arc, so this is a
+    // cheap refcount bump).
+    let hub_for_server = hub.clone();
+    let manual_for_server = manual_actions.clone();
+
     let saved_history = storage.load_mark_history(mode);
     let history_pairs = saved_history.len();
 
@@ -501,6 +514,33 @@ async fn run_loop<E: Executor>(
         return Ok(());
     }
 
+    // Start the dashboard web server (Phase 8). It shares the same hub the
+    // loop publishes to, plus the config broker (Settings tab), a backtest
+    // store (Backtest tab), and the manual-action queue ("sell now").
+    let dashboard_handle: Option<DashboardHandle> = if let Some(hub) = hub_for_server {
+        let mut state = AppState::new(hub)
+            .with_broker(Arc::new(ConfigBroker::new(
+                config_path.clone(),
+                cfg.clone(),
+            )))
+            .with_backtest_store(Arc::new(Mutex::new(BacktestStore::new(20))));
+        if let Some(ma) = manual_for_server {
+            state = state.with_manual_actions(ma);
+        }
+        match spawn_dashboard(state, &cfg.dashboard.host, cfg.dashboard.port).await {
+            Ok((handle, addr)) => {
+                tracing::info!(url = format!("http://{addr}"), "dashboard_url");
+                Some(handle)
+            }
+            Err(e) => {
+                tracing::error!(error = %e, "dashboard_server_bind_failed");
+                None
+            }
+        }
+    } else {
+        None
+    };
+
     let stop_signal = loop_.stop_signal();
     let ctrlc_stop = stop_signal.clone();
     let ctrlc_task = tokio::spawn(async move {
@@ -512,6 +552,10 @@ async fn run_loop<E: Executor>(
 
     run_combined(&mut loop_, cfg.app.decision_interval_s, fast_interval_s).await;
     ctrlc_task.abort();
+
+    if let Some(handle) = dashboard_handle {
+        handle.shutdown().await;
+    }
 
     Ok(())
 }

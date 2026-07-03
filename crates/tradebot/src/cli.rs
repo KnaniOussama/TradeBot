@@ -159,7 +159,7 @@ pub async fn cmd_start(
         }
     }
 
-    match wiring::run(mode, cfg, bot_keypair, max_cycles).await {
+    match wiring::run(mode, cfg, config_path, bot_keypair, max_cycles).await {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => {
             tracing::error!(error = %e, "run_failed");
