@@ -1,22 +1,6 @@
-# --- Python ---
-__pycache__/
-*.pyc
-*.pyo
-.venv/
-venv/
-.env
-*.egg-info/
-dist/
-build/
-
-# --- Caches / tooling ---
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
-htmlcov/
-.coverage
-coverage.xml
-pytest_output.txt
+# --- Rust ---
+/target/
+**/*.rs.bk
 
 # --- Databases ---
 *.db
@@ -27,6 +11,7 @@ pytest_output.txt
 # --- Runtime / secrets (NEVER commit) ---
 logs/
 *.log
+.env
 /data/
 /data/local/
 keystore/
@@ -41,7 +26,3 @@ Thumbs.db
 
 # --- Local tooling config (keep out of the public repo) ---
 .claude/
-
-# --- Rust ---
-/target/
-**/*.rs.bk

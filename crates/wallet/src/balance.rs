@@ -42,7 +42,7 @@ mod tests {
 
     fn fixture_path(name: &str) -> PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../tests/fixtures")
+            .join("../../fixtures")
             .join(name)
     }
 

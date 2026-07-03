@@ -180,7 +180,7 @@ fn start_missing_config_aborts() {
 async fn start_demo_runs_a_few_cycles_offline() {
     let quote_fixture = fs::read_to_string(
         std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../tests/fixtures/jupiter_quote_sol_usdc.json"),
+            .join("../../fixtures/jupiter_quote_sol_usdc.json"),
     )
     .expect("jupiter quote fixture readable");
     let quote_json: serde_json::Value =
