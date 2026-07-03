@@ -4,6 +4,8 @@ A small autonomous trading bot for Solana DEXs (Raydium, Orca, etc. via Jupiter)
 Runs on your computer, decides what to trade based on signals, and shows everything
 in a live web dashboard at `http://127.0.0.1:8765`.
 
+![The TradeBot dashboard running in demo mode](docs/images/dashboard.png)
+
 Two modes:
 
 - **Demo:** pretend money. Uses real prices but never sends a transaction. Safe to leave running for days while you watch.
